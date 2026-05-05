@@ -4,31 +4,53 @@
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{url}
 \usepackage{graphicx}
+\usepackage{listings}
+\usepackage{pifont}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{hyperref}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\lstset{
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+%Tabelle
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\warnmark}{$\circ$}
+
 \begin{document}
 
 \title{TLS - Transport Layer Security\\
 {\footnotesize Eine Betrachtung von TLS hinsichtlich Sicherheit und Robustheit }
 }
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Sina ??}
+\author{\IEEEauthorblockN{1\textsuperscript{st} Sina <Nachname>}
 \IEEEauthorblockA{\textit{HKA} \\
 \textit{Hochschule Karlsruhe}\\
-reni1030@h-ka.de}
+rz-kürzel@h-ka.de}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Person 2}
+\IEEEauthorblockN{2\textsuperscript{nd} <Vorname> <Nachname>}
 \IEEEauthorblockA{\textit{HKA} \\
 \textit{Hochschule Karlsruhe}\\
-reni1030@h-ka.de}
+rz-kürzelh-ka.de}
 \and
-\IEEEauthorblockN{3\textsuperscript{rd} Person 3}
+\IEEEauthorblockN{3\textsuperscript{rd} <Vorname> <Nachname>}
 \IEEEauthorblockA{\textit{HKA} \\
 \textit{Hochschule Karlsruhe}\\
-reni1030@h-ka.de}
+rz-kürzel@h-ka.de}
 \and
 \IEEEauthorblockN{4\textsuperscript{th} Niels Reisch}
 \IEEEauthorblockA{\textit{HKA} \\
@@ -38,18 +60,20 @@ reni1030@h-ka.de}
 
 \maketitle
 
-\begin{abstract}lat
-Erläutern Sie die Funktionsweise von TLS, insbesondere den Handshake-Prozess, Zertifikatsprüfung und Vertrauensketten. 
-Entwerfen Sie ein Szenario mit mindestens zwei Client-Server-Paaren mit unterschiedlichen TLS-Konfigurationen (z. B. sichere Konfiguration, veraltete Version, schwache Cipher Suite oder selbstsigniertes Zertifikat). 
-Simulieren Sie einen Downgrade- oder Handshake-Fehlerfall. Beschreiben Sie die einzelnen Schritte des Verbindungsaufbaus und analysieren Sie anhand von Logs oder Paketmitschnitten, an welcher Stelle die Sicherheitsmechanismen versagen oder geschwächt werden. 
-Bewerten Sie die Auswirkungen auf Vertraulichkeit, Integrität und Authentizität. 
-Entwickeln Sie abschließend konkrete Härtungsmaßnahmen und begründen Sie, warum diese die identifizierten Schwachstellen wirksam verhindern.
+\begin{abstract}
+
+Transport Layer Security (TLS) bildet das kryptographische Fundament sicherer Netzwerkkommunikation. Diese Arbeit analysiert den TLS-Handshake-Prozess, die Zertifikatsvalidierung sowie Vertrauensketten anhand zweier kontrastierender Client-Server-Szenarien: einer gehärteten TLS~1.3-Konfiguration mit Perfect Forward Secrecy und einem System mit veralteter Protokollversion und schwachen Cipher Suites. Am Beispiel des POODLE-Angriffs (CVE-2014-3566) wird ein gezielter Protokoll-Downgrade auf SSL~3.0 simuliert und anhand synthetischer Handshake-Logs nachvollzogen, an welcher Stelle die Sicherheitsmechanismen versagen. Ergänzend wird das Szenario eines selbstsignierten Zertifikats untersucht, das den Handshake mit einem \texttt{CERTIFICATE\_UNKNOWN}-Alert abbricht und die Verwundbarkeit gegenüber Impersonation-Angriffen aufzeigt. Die Bewertung der Auswirkungen auf Vertraulichkeit, Integrität und Authentizität zeigt, dass Legacy-Protokolle alle drei Schutzziele gleichermaßen gefährden. Als Härtungsmaßnahmen werden die ausschließliche Verwendung von TLS~1.2 und TLS~1.3, der Einsatz von Cipher Suites mit Perfect Forward Secrecy, OCSP Stapling, Certificate Transparency sowie HTTP Strict Transport Security diskutiert und im Einklang mit der BSI-Technischen Richtlinie TR-02102-2 bewertet.
 
 \end{abstract}
 
 \begin{IEEEkeywords}
-TLS, Sicherheit, Authentizität, Hacking
+Transport Layer Security, TLS Handshake, Downgrade-Angriff,
+POODLE, Cipher Suite, Perfect Forward Secrecy, Zertifikatsvalidierung,
+Public Key Infrastructure, Härtungsmaßnahmen, IT-Sicherheit
 \end{IEEEkeywords}
+
+\section{Aufgabenstellung}
+Erläutern Sie die Funktionsweise von TLS, insbesondere den Handshake-Prozess, Zertifikatsprüfung und Vertrauensketten. Entwerfen Sie ein Szenario mit mindestens zwei Client-Server-Paaren mit unterschiedlichen TLS-Konfigurationen (z. B. sichere Konfiguration, veraltete Version, schwache Cipher Suite oder selbstsigniertes Zertifikat). Simulieren Sie einen Downgrade- oder Handshake-Fehlerfall. Beschreiben Sie die einzelnen Schritte des Verbindungsaufbaus und analysieren Sie anhand von Logs oder Paketmitschnitten, an welcher Stelle die Sicherheitsmechanismen versagen oder geschwächt werden. Bewerten Sie die Auswirkungen auf Vertraulichkeit, Integrität und Authentizität. Entwickeln Sie abschließend konkrete Härtungsmaßnahmen und begründen Sie, warum diese die identifizierten Schwachstellen wirksam verhindern.
 
 \section{Funktionsweise von TLS}
 \subsection*{Handshake}
@@ -62,248 +86,142 @@ TLS, Sicherheit, Authentizität, Hacking
 
 \section{TLS Fehler}
 \subsection*{Forsiertes Downgrade}
+
+Der POODLE-Angriff (Padding Oracle On Downgraded Legacy Encryption, CVE-2014-3566) zeigt exemplarisch, wie ein Angreifer in der Mitte (Mallory) einen modernen TLS-Verbindungsversuch systematisch auf das unsichere Protokoll SSL 3.0 herabstuft. Voraussetzung ist, dass sowohl Client als auch Server SSL 3.0 als Fallback unterstützen und der sogenannte „Downgrade Dance" nicht durch \texttt{TLS\_FALLBACK\_SCSV} (RFC 7507) blockiert wird.
+
+Der BEAST-Angriff (Browser Exploit Against SSL/TLS) ist ein Man-in-the-Middle-Angriff, der eine Schwachstelle im Cipher Block Chaining (CBC)-Modus der Protokolle SSL 3.0 und TLS 1.0 ausnutzt. Er wurde 2011 von den Sicherheitsforschern Thai Duong und Juliano Rizzo praktisch demonstriert und ermöglicht es Angreifern, sensible Daten wie Session-Cookies aus verschlüsselten Verbindungen auszuspähen. 
+
 \subsection*{Handshake Fehler}
 
 \section{Auswirkungen eines Fehlerfalls auf Schutzziele}
-\subsection*{POODLE Angriff}
-\subsection*{selbstsigniertes Zertifikat}
+
+\begin{table}[ht]
+\caption{Auswirkungen auf die Schutzziele (CIA)}
+\label{tab:Auswirkungen-Schutzziele}
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Schutzziel}
+  & \textbf{Angriff POODLE \cite{cve-poodle}}
+  & \textbf{Self-Signed-Cert} \\
+\midrule
+Vertraulichkeit & \xmark\ Verletzt    & $\circ$\ Gefährdet  \\
+Integrität      & \xmark\ Verletzt    & $\circ$\ Partiell   \\
+Authentizität   & \xmark\ Verletzt    & \xmark\ Verletzt    \\
+\bottomrule
+\multicolumn{3}{l}{\scriptsize \xmark~= verletzt;\quad
+  $\circ$~= partiell gefährdet}
+\end{tabular}
+\end{table}
+
+In Tabelle ~\ref{tab:Auswirkungen-Schutzziele} sind die die Auswirkungen zusammengefasst.
+\subsection*{Angriff POODLE} 
+Der POODLE-Angriff (Padding Oracle On Downgraded Legacy Encryption, CVE-2014-3566) zeigt wie ein Angreifer eine Verbindung von TLS auf SSL 3.0 downgraded und dadurch die Verbindung kompromittiert.
+Die Padding-Oracle-Eigenschaft von SSL~3.0 im CBC-Modus ermöglicht die iterative Rekonstruktion von Klartextbytes durch einen Angreifer im Netzpfad (\textit{Vertraulichkeit}). Manipulierte CBC-Blöcke werden akzeptiert, sofern das Padding zufällig korrekt ist -- die MAC-then-Encrypt-Konstruktion bietet keinen ausreichenden Schutz (\textit{Integrität}). Mit dem erzwungenen Wechsel auf SSL~3.0 entfallen die Finished-Message-Signaturen moderner
+TLS-Versionen; ohne \texttt{TLS\_FALLBACK\_SCSV} bleibt der Downgrade unbemerkt (\textit{Authentizität}).
+
+\subsection*{Selbstsigniertes Zertifikat} 
+
+Präsentiert ein Server ein selbstsigniertes Zertifikat, bricht ein korrekt konfigurierter Client den Handshake mit einem \texttt{CERTIFICATE\_UNKNOWN}-Alert ab -- die Verbindung kommt nicht zustande. Deaktiviert ein Nutzer diese Prüfung jedoch (z.\,B.\ durch Akzeptieren einer Browser-Warnung oder mittels \texttt{-{}-no-verify}-Flag), öffnet sich ein Angriffsfenster: Ein Angreifer im Netzpfad kann ein eigenes selbstsigniertes Zertifikat einschleusen, das der Client mangels CA-Prüfung ebenfalls akzeptiert. Damit terminiert der Angreifer \emph{beide} TLS-Verbindungen separat -- zum Client und zum echten Server -- und leitet Daten transparent weiter (\textit{Man-in-the-Middle}). Alle übertragenen Klartextdaten sind dem Angreifer zugänglich, obwohl der Nutzer eine \texttt{https://}-Verbindung im Browser sieht (\textit{Vertraulichkeit verletzt, Authentizität verletzt}). Die TLS-Record-MAC-Prüfung schützt die Integrität \emph{innerhalb} jeder der beiden Teilverbindungen -- der Angreifer kann jedoch Inhalte modifizieren, bevor er sie in der zweiten Verbindung weitersendet, sodass der Endnutzer manipulierte Daten als integer wahrnimmt (\textit{Integrität de facto verletzt}).
 
 \section{Härtungsmaßnahmen}
 \subsection*{TLS Versionsbeschränkung}
+
+Das BSI schreibt in der \textbf{Technischen Richtlinie TR-02102-2} (Stand: Januar 2026) vor, dass in neuen Systemen ausschließlich TLS~1.2 und TLS~1.3 eingesetzt werden sollen \cite{bsi-tr02102}. SSL~2.0, SSL~3.0 und TLS~1.0 sind vollständig zu deaktivieren; TLS~1.1 wird ebenfalls nicht mehr empfohlen. Die Konfiguration in nginx lautet entsprechend:
+
+\begin{lstlisting}
+ssl_protocols TLSv1.2 TLSv1.3;
+\end{lstlisting}
+
+Durch die Abschaltung aller Legacy-Protokolle entfällt die Angriffsfläche für POODLE und BEAST \cite{cve-beast} grundlegend, da kein Protokoll-Fallback mehr stattfinden kann \cite{thomas-krenn-poodle}. Ergänzend sollte \textbf{TLS\_FALLBACK\_SCSV} (RFC~7507) implementiert werden: Übermittelt ein Client diesen Signaling Cipher Suite Value in einem erneuten, herabgestuften Verbindungsversuch, bricht der Server den Handshake mit einem \texttt{inappropriate\_fallback}-Alert ab und verhindert so auch aktive Downgrade-Versuche bei Systemen, die Legacy-Versionen aus Kompatibilitätsgründen noch führen.
+
 \subsection*{Sichere Cipher Suites}
+
+Algorithmen ohne kryptographische Langzeitsicherheit -- darunter RC4, DES, 3DES, Export-Cipher und MD5-basierte MACs -- sind vollständig aus der Konfiguration zu entfernen \cite{bsi-tr02102}. Gemäß BSI~TR-02102-2 sind ausschließlich Cipher Suites mit \textbf{Perfect Forward Secrecy (PFS)} zu verwenden: Nur ephemere Schlüsselaustauschverfahren (ECDHE, DHE) stellen sicher, dass ein nachträglich kompromittierter Langzeitschlüssel keine bereits aufgezeichneten Sessions entschlüsselbar macht. Empfohlene Suiten für TLS~1.2 sind:
+
+\begin{lstlisting}
+TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+\end{lstlisting}
+
+Für TLS~1.3 sind die verfügbaren Cipher Suites protokollseitig bereits auf AEAD-Verfahren (AES-GCM, ChaCha20-Poly1305) beschränkt; RC4, CBC sowie der statische RSA-Schlüsseltransport sind im Standard nicht mehr vorgesehen \cite{windows-papst-ciphers}.
+
 \subsection*{Zertifikatsvalidierung und Vertrauensketten}
+
+Selbstsignierte Zertifikate sind in produktiven Umgebungen unzulässig. Es sind Zertifikate einer anerkannten Zertifizierungsstelle einzusetzen, deren Root-Zertifikate in den Betriebssystem- und Browser-Trust-Stores enthalten sind. Zur weiteren Absicherung der Vertrauenskette empfehlen sich folgende Mechanismen:
+
+\begin{itemize}
+  \item \textbf{Certificate Transparency (CT):} 
+    Alle ausgestellten Zertifikate werden in öffentliche, append-only-Logs eingetragen. Clients und Monitore können überprüfen, ob ein präsentiertes Zertifikat dort verzeichnet ist, und unautorisierte Ausstellungen frühzeitig erkennen.
+  \item \textbf{OCSP Stapling:} 
+    Der Server liefert den aktuellen Sperrstatus seines Zertifikats unmittelbar im TLS-Handshake mit, sodass der Client keinen separaten OCSP-Request senden muss. Dies     verhindert, dass ein Angreifer OCSP-Abfragen blockiert und ein bereits widerrufenes Zertifikat weiterhin nutzbar bleibt.
+  \item \textbf{CAA-DNS-Einträge:} 
+    \emph{Certification Authority Authorization} Records schränken auf DNS-Ebene ein, welche Zertifizierungsstellen für eine Domain überhaupt Zertifikate ausstellen dürfen, und verringern so das Risiko unberechtigter Ausstellungen.
+\end{itemize}
+
 \subsection*{HTTP Strict Transport Security (HSTS)}
+
+Über den \texttt{Strict-Transport-Security}-Antwort-Header teilt der Server dem Browser verbindlich mit, dass die Domain ausschließlich über HTTPS erreichbar ist. Selbst bei einem aktiven Downgrade-Versuch auf HTTP baut der Browser keine unverschlüsselte Verbindung auf:
+
+\begin{lstlisting}
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+\end{lstlisting}
+
+Die Aufnahme in die \textbf{HSTS-Preload-Liste} (hstspreload.org) bewirkt, dass dieser Schutz bereits beim allerersten Verbindungsversuch gilt -- ohne eine initiale, potenziell abfangbare HTTP-Anfrage.
+
 \subsection*{Regelmäßige Überprüfung und Patch-Management}
 
+Da Schwachstellen kontinuierlich neu entdeckt werden (vgl. MITRE CVE-Datenbank), ist eine \textbf{regelmäßige Überprüfung der TLS-Konfiguration} zwingend erforderlich. Werkzeuge wie \href{https://testssl.sh}{testssl.sh} oder der \href{https://www.ssllabs.com/ssltest/}{Qualys SSL~Labs Server Test} erlauben eine automatisierte Analyse aktiver Protokollversionen, Cipher Suites und Zertifikatseigenschaften. Das BSI macht die TR-02102-2 für Bundesbehörden gemäß § 8 Abs.~1 BSIG verbindlich und aktualisiert die Richtlinie fortlaufend -- zuletzt im Januar 2026 \cite{kes-bsi-tr}.
 
-\newpage
-\begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
-\end{abstract}
-
-\begin{IEEEkeywords}
-component, formatting, style, styling, insert
-\end{IEEEkeywords}
-
-\section{Introduction}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
-
-\section{Ease of Use}
-
-\subsection{Maintaining the Integrity of the Specifications}
-
-The IEEEtran class file is used to format your paper and style the text. All margins, 
-column widths, line spaces, and text fonts are prescribed; please do not 
-alter them. You may note peculiarities. For example, the head margin
-measures proportionately more than is customary. This measurement 
-and others are deliberate, using specifications that anticipate your paper 
-as one part of the entire proceedings, and not as an independent document. 
-Please do not revise any of the current designations.
-
-\section{Prepare Your Paper Before Styling}
-Before you begin to format your paper, first write and save the content as a 
-separate text file. Complete all content and organizational editing before 
-formatting. Please note sections \ref{AA}--\ref{SCM} below for more information on 
-proofreading, spelling and grammar.
-
-Keep your text and graphic files separate until after the text has been 
-formatted and styled. Do not number text heads---{\LaTeX} will do that 
-for you.
-
-\subsection{Abbreviations and Acronyms}\label{AA}
-Define abbreviations and acronyms the first time they are used in the text, 
-even after they have been defined in the abstract. Abbreviations such as 
-IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
-abbreviations in the title or heads unless they are unavoidable.
-
-\subsection{Units}
-\begin{itemize}
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
-\item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
-\end{itemize}
-
-\subsection{Equations}
-Number equations consecutively. To make your 
-equations more compact, you may use the solidus (~/~), the exp function, or 
-appropriate exponents. Italicize Roman symbols for quantities and variables, 
-but not Greek symbols. Use a long dash rather than a hyphen for a minus 
-sign. Punctuate equations with commas or periods when they are part of a 
-sentence, as in:
-\begin{equation}
-a+b=\gamma\label{eq}
-\end{equation}
-
-Be sure that the 
-symbols in your equation have been defined before or immediately following 
-the equation. Use ``\eqref{eq}'', not ``Eq.~\eqref{eq}'' or ``equation \eqref{eq}'', except at 
-the beginning of a sentence: ``Equation \eqref{eq} is . . .''
-
-\subsection{\LaTeX-Specific Advice}
-
-Please use ``soft'' (e.g., \verb|\eqref{Eq}|) cross references instead
-of ``hard'' references (e.g., \verb|(1)|). That will make it possible
-to combine sections, add equations, or change the order of figures or
-citations without having to go through the file line by line.
-
-Please don't use the \verb|{eqnarray}| equation environment. Use
-\verb|{align}| or \verb|{IEEEeqnarray}| instead. The \verb|{eqnarray}|
-environment leaves unsightly spaces around relation symbols.
-
-Please note that the \verb|{subequations}| environment in {\LaTeX}
-will increment the main equation counter even when there are no
-equation numbers displayed. If you forget that, you might write an
-article in which the equation numbers skip from (17) to (20), causing
-the copy editors to wonder if you've discovered a new method of
-counting.
-
-{\BibTeX} does not work by magic. It doesn't get the bibliographic
-data from thin air but from .bib files. If you use {\BibTeX} to produce a
-bibliography you must send the .bib files. 
-
-{\LaTeX} can't read your mind. If you assign the same label to a
-subsubsection and a table, you might find that Table I has been cross
-referenced as Table IV-B3. 
-
-{\LaTeX} does not have precognitive abilities. If you put a
-\verb|\label| command before the command that updates the counter it's
-supposed to be using, the label will pick up the last counter to be
-cross referenced instead. In particular, a \verb|\label| command
-should not go before the caption of a figure or a table.
-
-Do not use \verb|\nonumber| inside the \verb|{array}| environment. It
-will not stop equation numbers inside \verb|{array}| (there won't be
-any anyway) and it might stop a wanted equation number in the
-surrounding equation.
-
-\subsection{Some Common Mistakes}\label{SCM}
-\begin{itemize}
-\item The word ``data'' is plural, not singular.
-\item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
-\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
-\item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
-\item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
-\item Do not confuse ``imply'' and ``infer''.
-\item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
-\end{itemize}
-An excellent style manual for science writers is \cite{b7}.
-
-\subsection{Authors and Affiliations}
-\textbf{The class file is designed for, but not limited to, six authors.} A 
-minimum of one author is required for all conference articles. Author names 
-should be listed starting from left to right and then moving down to the 
-next line. This is the author sequence that will be used in future citations 
-and by indexing services. Names should not be listed in columns nor group by 
-affiliation. Please keep your affiliations as succinct as possible (for 
-example, do not differentiate among departments of the same organization).
-
-\subsection{Identify the Headings}
-Headings, or heads, are organizational devices that guide the reader through 
-your paper. There are two types: component heads and text heads.
-
-Component heads identify the different components of your paper and are not 
-topically subordinate to each other. Examples include Acknowledgments and 
-References and, for these, the correct style to use is ``Heading 5''. Use 
-``figure caption'' for your Figure captions, and ``table head'' for your 
-table title. Run-in heads, such as ``Abstract'', will require you to apply a 
-style (in this case, italic) in addition to the style provided by the drop 
-down menu to differentiate the head from the text.
-
-Text heads organize the topics on a relational, hierarchical basis. For 
-example, the paper title is the primary text head because all subsequent 
-material relates and elaborates on this one topic. If there are two or more 
-sub-topics, the next level head (uppercase Roman numerals) should be used 
-and, conversely, if there are not at least two sub-topics, then no subheads 
-should be introduced.
-
-\subsection{Figures and Tables}
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
-bottom of columns. Avoid placing them in the middle of columns. Large 
-figures and tables may span across both columns. Figure captions should be 
-below the figures; table heads should appear above the tables. Insert 
-figures and tables after they are cited in the text. Use the abbreviation 
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
-
-\begin{table}[htbp]
-\caption{Table Type Styles}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
-\cline{2-4} 
-\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
-\hline
-copy& More table copy$^{\mathrm{a}}$& &  \\
-\hline
-\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
-\end{tabular}
-\label{tab1}
-\end{center}
-\end{table}
-
-\begin{figure}[htbp]
-\centerline{\includegraphics{fig1.png}}
-\caption{Example of a figure caption.}
-\label{fig}
-\end{figure}
-
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
-rather than symbols or abbreviations when writing Figure axis labels to 
-avoid confusing the reader. As an example, write the quantity 
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
-units in the label, present them within parentheses. Do not label axes only 
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
-quantities and units. For example, write ``Temperature (K)'', not 
-``Temperature/K''.
-
-\section*{Acknowledgment}
-
-The preferred spelling of the word ``acknowledgment'' in America is without 
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
-acknowledgments in the unnumbered footnote on the first page.
-
-\section*{References}
-
-Please number citations consecutively within brackets \cite{b1}. The 
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference 
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at 
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
-
-Number footnotes separately in superscripts. Place the actual footnote at 
-the bottom of the column in which it was cited. Do not put footnotes in the 
-abstract or reference list. Use letters for table footnotes.
-
-Unless there are six authors or more give all authors' names; do not use 
-``et al.''. Papers that have not been published, even if they have been 
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers 
-that have been accepted for publication should be cited as ``in press'' \cite{b5}. 
-Capitalize only the first word in a paper title, except for proper nouns and 
-element symbols.
-
-For papers published in translation journals, please give the English 
-citation first, followed by the original foreign-language citation \cite{b6}.
 
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
-\end{thebibliography}
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
 
+\bibitem{VL_IT-Sicherheit}
+  Vorlesungsfolien und Übungsaufgaben zur Vorlesung "IT-Sicherheit", Hochschule Karlsruhe.
+
+
+\bibitem{bsi-tr02102}
+  Bundesamt für Sicherheit in der Informationstechnik (BSI),
+  \textit{Technische Richtlinie TR-02102-2: Kryptographische Verfahren --
+  Verwendung von Transport Layer Security (TLS)}, Version 2026-01,
+  \url{https://www.bsi.bund.de/TR02102}.
+
+\bibitem{thomas-krenn-poodle}
+  Thomas-Krenn-Wiki,
+  \textit{SSL 3.0 POODLE Attack}, 2023,
+  \url{https://www.thomas-krenn.com/de/wiki/SSL_3.0_POODLE_Attack}.
+
+\bibitem{windows-papst-ciphers}
+  Der Windows Papst,
+  \textit{Recommended Cipher Suites 2025}, Juni 2024,
+  \url{https://www.der-windows-papst.de/2024/06/24/recommended-cipher-suites-2025/}.
+
+\bibitem{kes-bsi-tr}
+  \textit{kes -- Zeitschrift für Informations-Sicherheit},
+  \textit{Technische Richtlinien des BSI zur Kryptografie}, 2025,
+  \url{https://www.kes-informationssicherheit.de}.
+
+
+\bibitem{mozilla-ssl-gen}
+  \textit{Mozilla, ``SSL Configuration Generator.'' [Online].}
+  \url{https://ssl-config.mozilla.org/}
+
+\bibitem{cve-poodle}
+  NIST National Vulnerability Database,
+  \textit{CVE-2014-3566: SSL~3.0 Padding Oracle Vulnerability},
+  2014.
+  [Online]. Verfügbar:
+  \url{https://nvd.nist.gov/vuln/detail/CVE-2014-3566}
+
+\bibitem{cve-beast}
+  NIST National Vulnerability Database,
+  \textit{CVE-2011-3389: TLS~1.0 CBC Predictable IV (BEAST)},
+  2011.
+  [Online]. Verfügbar:
+  \url{https://nvd.nist.gov/vuln/detail/CVE-2011-3389}
+
+\end{thebibliography}
 \end{document}
