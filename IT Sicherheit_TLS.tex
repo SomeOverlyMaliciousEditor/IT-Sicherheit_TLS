@@ -11,10 +11,21 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{listings}
+\usepackage{listingsutf8}
 \usepackage{pifont}
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage[german]{babel}
+\usepackage{blindtext}
+\usepackage{tikz}
+\usepackage{lstautogobble}
+\usepackage[framemethod=TikZ]{mdframed}
+
+\bibliographystyle{IEEEtran}
+
+
+\usetikzlibrary{calc,arrows.meta,decorations,backgrounds, fit}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -22,8 +33,22 @@
     basicstyle=\small\ttfamily,
     breaklines=true,
     frame=single,
-    backgroundcolor=\color{gray!10}
+    backgroundcolor=\color{gray!20},
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={→}{{$\rightarrow$}}1 {←}{{$\leftarrow$}}1 {⇒}{{$\Rightarrow$}}1 {⇐}{{$\Leftarrow$}}1
 }
+\lstdefinestyle{consolestyle}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{black},
+  basicstyle=\color{green!90!black!100},
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  autogobble=true,
+  }
+
 
 %Tabelle
 \usepackage{pifont}
@@ -37,17 +62,17 @@
 {\footnotesize Eine Betrachtung von TLS hinsichtlich Sicherheit und Robustheit }
 }
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Sina <Nachname>}
+\author{\IEEEauthorblockN{1\textsuperscript{st} Hanna <Nachname>}
 \IEEEauthorblockA{\textit{HKA} \\
 \textit{Hochschule Karlsruhe}\\
 rz-kürzel@h-ka.de}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} <Vorname> <Nachname>}
+\IEEEauthorblockN{2\textsuperscript{nd} Leonie <Nachname>}
 \IEEEauthorblockA{\textit{HKA} \\
 \textit{Hochschule Karlsruhe}\\
 rz-kürzelh-ka.de}
 \and
-\IEEEauthorblockN{3\textsuperscript{rd} <Vorname> <Nachname>}
+\IEEEauthorblockN{3\textsuperscript{rd} Sina <Nachname>}
 \IEEEauthorblockA{\textit{HKA} \\
 \textit{Hochschule Karlsruhe}\\
 rz-kürzel@h-ka.de}
@@ -72,156 +97,11 @@ POODLE, Cipher Suite, Perfect Forward Secrecy, Zertifikatsvalidierung,
 Public Key Infrastructure, Härtungsmaßnahmen, IT-Sicherheit
 \end{IEEEkeywords}
 
-\section{Aufgabenstellung}
-Erläutern Sie die Funktionsweise von TLS, insbesondere den Handshake-Prozess, Zertifikatsprüfung und Vertrauensketten. Entwerfen Sie ein Szenario mit mindestens zwei Client-Server-Paaren mit unterschiedlichen TLS-Konfigurationen (z. B. sichere Konfiguration, veraltete Version, schwache Cipher Suite oder selbstsigniertes Zertifikat). Simulieren Sie einen Downgrade- oder Handshake-Fehlerfall. Beschreiben Sie die einzelnen Schritte des Verbindungsaufbaus und analysieren Sie anhand von Logs oder Paketmitschnitten, an welcher Stelle die Sicherheitsmechanismen versagen oder geschwächt werden. Bewerten Sie die Auswirkungen auf Vertraulichkeit, Integrität und Authentizität. Entwickeln Sie abschließend konkrete Härtungsmaßnahmen und begründen Sie, warum diese die identifizierten Schwachstellen wirksam verhindern.
+\input{IT Sicherheit_TLS_1_Einfuehrung.tex}
+\input{IT Sicherheit_TLS_2_Konfiguration.tex}
+\input{IT Sicherheit_TLS_3_Experiment.tex}
+\input{IT Sicherheit_TLS_4_Auswirkungen_Schutzziele.tex}
 
-\section{Funktionsweise von TLS}
-\subsection*{Handshake}
-\subsection*{Zertifikatsprüfung}
-\subsection*{Vertrauensketten}
+\bibliography{IT Sicherheit_TLS Literatur}
 
-\section{Konfigurationen von TLS}
-\subsection*{Sichere Konfiguration}
-\subsection*{veraltete Konfiguration}
-
-\section{TLS Fehler}
-\subsection*{Forsiertes Downgrade}
-
-Der POODLE-Angriff (Padding Oracle On Downgraded Legacy Encryption, CVE-2014-3566) zeigt exemplarisch, wie ein Angreifer in der Mitte (Mallory) einen modernen TLS-Verbindungsversuch systematisch auf das unsichere Protokoll SSL 3.0 herabstuft. Voraussetzung ist, dass sowohl Client als auch Server SSL 3.0 als Fallback unterstützen und der sogenannte „Downgrade Dance" nicht durch \texttt{TLS\_FALLBACK\_SCSV} (RFC 7507) blockiert wird.
-
-Der BEAST-Angriff (Browser Exploit Against SSL/TLS) ist ein Man-in-the-Middle-Angriff, der eine Schwachstelle im Cipher Block Chaining (CBC)-Modus der Protokolle SSL 3.0 und TLS 1.0 ausnutzt. Er wurde 2011 von den Sicherheitsforschern Thai Duong und Juliano Rizzo praktisch demonstriert und ermöglicht es Angreifern, sensible Daten wie Session-Cookies aus verschlüsselten Verbindungen auszuspähen. 
-
-\subsection*{Handshake Fehler}
-
-\section{Auswirkungen eines Fehlerfalls auf Schutzziele}
-
-\begin{table}[ht]
-\caption{Auswirkungen auf die Schutzziele (CIA)}
-\label{tab:Auswirkungen-Schutzziele}
-\centering
-\footnotesize
-\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{lcc}
-\toprule
-\textbf{Schutzziel}
-  & \textbf{Angriff POODLE \cite{cve-poodle}}
-  & \textbf{Self-Signed-Cert} \\
-\midrule
-Vertraulichkeit & \xmark\ Verletzt    & $\circ$\ Gefährdet  \\
-Integrität      & \xmark\ Verletzt    & $\circ$\ Partiell   \\
-Authentizität   & \xmark\ Verletzt    & \xmark\ Verletzt    \\
-\bottomrule
-\multicolumn{3}{l}{\scriptsize \xmark~= verletzt;\quad
-  $\circ$~= partiell gefährdet}
-\end{tabular}
-\end{table}
-
-In Tabelle ~\ref{tab:Auswirkungen-Schutzziele} sind die die Auswirkungen zusammengefasst.
-\subsection*{Angriff POODLE} 
-Der POODLE-Angriff (Padding Oracle On Downgraded Legacy Encryption, CVE-2014-3566) zeigt wie ein Angreifer eine Verbindung von TLS auf SSL 3.0 downgraded und dadurch die Verbindung kompromittiert.
-Die Padding-Oracle-Eigenschaft von SSL~3.0 im CBC-Modus ermöglicht die iterative Rekonstruktion von Klartextbytes durch einen Angreifer im Netzpfad (\textit{Vertraulichkeit}). Manipulierte CBC-Blöcke werden akzeptiert, sofern das Padding zufällig korrekt ist -- die MAC-then-Encrypt-Konstruktion bietet keinen ausreichenden Schutz (\textit{Integrität}). Mit dem erzwungenen Wechsel auf SSL~3.0 entfallen die Finished-Message-Signaturen moderner
-TLS-Versionen; ohne \texttt{TLS\_FALLBACK\_SCSV} bleibt der Downgrade unbemerkt (\textit{Authentizität}).
-
-\subsection*{Selbstsigniertes Zertifikat} 
-
-Präsentiert ein Server ein selbstsigniertes Zertifikat, bricht ein korrekt konfigurierter Client den Handshake mit einem \texttt{CERTIFICATE\_UNKNOWN}-Alert ab -- die Verbindung kommt nicht zustande. Deaktiviert ein Nutzer diese Prüfung jedoch (z.\,B.\ durch Akzeptieren einer Browser-Warnung oder mittels \texttt{-{}-no-verify}-Flag), öffnet sich ein Angriffsfenster: Ein Angreifer im Netzpfad kann ein eigenes selbstsigniertes Zertifikat einschleusen, das der Client mangels CA-Prüfung ebenfalls akzeptiert. Damit terminiert der Angreifer \emph{beide} TLS-Verbindungen separat -- zum Client und zum echten Server -- und leitet Daten transparent weiter (\textit{Man-in-the-Middle}). Alle übertragenen Klartextdaten sind dem Angreifer zugänglich, obwohl der Nutzer eine \texttt{https://}-Verbindung im Browser sieht (\textit{Vertraulichkeit verletzt, Authentizität verletzt}). Die TLS-Record-MAC-Prüfung schützt die Integrität \emph{innerhalb} jeder der beiden Teilverbindungen -- der Angreifer kann jedoch Inhalte modifizieren, bevor er sie in der zweiten Verbindung weitersendet, sodass der Endnutzer manipulierte Daten als integer wahrnimmt (\textit{Integrität de facto verletzt}).
-
-\section{Härtungsmaßnahmen}
-\subsection*{TLS Versionsbeschränkung}
-
-Das BSI schreibt in der \textbf{Technischen Richtlinie TR-02102-2} (Stand: Januar 2026) vor, dass in neuen Systemen ausschließlich TLS~1.2 und TLS~1.3 eingesetzt werden sollen \cite{bsi-tr02102}. SSL~2.0, SSL~3.0 und TLS~1.0 sind vollständig zu deaktivieren; TLS~1.1 wird ebenfalls nicht mehr empfohlen. Die Konfiguration in nginx lautet entsprechend:
-
-\begin{lstlisting}
-ssl_protocols TLSv1.2 TLSv1.3;
-\end{lstlisting}
-
-Durch die Abschaltung aller Legacy-Protokolle entfällt die Angriffsfläche für POODLE und BEAST \cite{cve-beast} grundlegend, da kein Protokoll-Fallback mehr stattfinden kann \cite{thomas-krenn-poodle}. Ergänzend sollte \textbf{TLS\_FALLBACK\_SCSV} (RFC~7507) implementiert werden: Übermittelt ein Client diesen Signaling Cipher Suite Value in einem erneuten, herabgestuften Verbindungsversuch, bricht der Server den Handshake mit einem \texttt{inappropriate\_fallback}-Alert ab und verhindert so auch aktive Downgrade-Versuche bei Systemen, die Legacy-Versionen aus Kompatibilitätsgründen noch führen.
-
-\subsection*{Sichere Cipher Suites}
-
-Algorithmen ohne kryptographische Langzeitsicherheit -- darunter RC4, DES, 3DES, Export-Cipher und MD5-basierte MACs -- sind vollständig aus der Konfiguration zu entfernen \cite{bsi-tr02102}. Gemäß BSI~TR-02102-2 sind ausschließlich Cipher Suites mit \textbf{Perfect Forward Secrecy (PFS)} zu verwenden: Nur ephemere Schlüsselaustauschverfahren (ECDHE, DHE) stellen sicher, dass ein nachträglich kompromittierter Langzeitschlüssel keine bereits aufgezeichneten Sessions entschlüsselbar macht. Empfohlene Suiten für TLS~1.2 sind:
-
-\begin{lstlisting}
-TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
-\end{lstlisting}
-
-Für TLS~1.3 sind die verfügbaren Cipher Suites protokollseitig bereits auf AEAD-Verfahren (AES-GCM, ChaCha20-Poly1305) beschränkt; RC4, CBC sowie der statische RSA-Schlüsseltransport sind im Standard nicht mehr vorgesehen \cite{windows-papst-ciphers}.
-
-\subsection*{Zertifikatsvalidierung und Vertrauensketten}
-
-Selbstsignierte Zertifikate sind in produktiven Umgebungen unzulässig. Es sind Zertifikate einer anerkannten Zertifizierungsstelle einzusetzen, deren Root-Zertifikate in den Betriebssystem- und Browser-Trust-Stores enthalten sind. Zur weiteren Absicherung der Vertrauenskette empfehlen sich folgende Mechanismen:
-
-\begin{itemize}
-  \item \textbf{Certificate Transparency (CT):} 
-    Alle ausgestellten Zertifikate werden in öffentliche, append-only-Logs eingetragen. Clients und Monitore können überprüfen, ob ein präsentiertes Zertifikat dort verzeichnet ist, und unautorisierte Ausstellungen frühzeitig erkennen.
-  \item \textbf{OCSP Stapling:} 
-    Der Server liefert den aktuellen Sperrstatus seines Zertifikats unmittelbar im TLS-Handshake mit, sodass der Client keinen separaten OCSP-Request senden muss. Dies     verhindert, dass ein Angreifer OCSP-Abfragen blockiert und ein bereits widerrufenes Zertifikat weiterhin nutzbar bleibt.
-  \item \textbf{CAA-DNS-Einträge:} 
-    \emph{Certification Authority Authorization} Records schränken auf DNS-Ebene ein, welche Zertifizierungsstellen für eine Domain überhaupt Zertifikate ausstellen dürfen, und verringern so das Risiko unberechtigter Ausstellungen.
-\end{itemize}
-
-\subsection*{HTTP Strict Transport Security (HSTS)}
-
-Über den \texttt{Strict-Transport-Security}-Antwort-Header teilt der Server dem Browser verbindlich mit, dass die Domain ausschließlich über HTTPS erreichbar ist. Selbst bei einem aktiven Downgrade-Versuch auf HTTP baut der Browser keine unverschlüsselte Verbindung auf:
-
-\begin{lstlisting}
-Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-\end{lstlisting}
-
-Die Aufnahme in die \textbf{HSTS-Preload-Liste} (hstspreload.org) bewirkt, dass dieser Schutz bereits beim allerersten Verbindungsversuch gilt -- ohne eine initiale, potenziell abfangbare HTTP-Anfrage.
-
-\subsection*{Regelmäßige Überprüfung und Patch-Management}
-
-Da Schwachstellen kontinuierlich neu entdeckt werden (vgl. MITRE CVE-Datenbank), ist eine \textbf{regelmäßige Überprüfung der TLS-Konfiguration} zwingend erforderlich. Werkzeuge wie \href{https://testssl.sh}{testssl.sh} oder der \href{https://www.ssllabs.com/ssltest/}{Qualys SSL~Labs Server Test} erlauben eine automatisierte Analyse aktiver Protokollversionen, Cipher Suites und Zertifikatseigenschaften. Das BSI macht die TR-02102-2 für Bundesbehörden gemäß § 8 Abs.~1 BSIG verbindlich und aktualisiert die Richtlinie fortlaufend -- zuletzt im Januar 2026 \cite{kes-bsi-tr}.
-
-
-\begin{thebibliography}{00}
-
-\bibitem{VL_IT-Sicherheit}
-  Vorlesungsfolien und Übungsaufgaben zur Vorlesung "IT-Sicherheit", Hochschule Karlsruhe.
-
-
-\bibitem{bsi-tr02102}
-  Bundesamt für Sicherheit in der Informationstechnik (BSI),
-  \textit{Technische Richtlinie TR-02102-2: Kryptographische Verfahren --
-  Verwendung von Transport Layer Security (TLS)}, Version 2026-01,
-  \url{https://www.bsi.bund.de/TR02102}.
-
-\bibitem{thomas-krenn-poodle}
-  Thomas-Krenn-Wiki,
-  \textit{SSL 3.0 POODLE Attack}, 2023,
-  \url{https://www.thomas-krenn.com/de/wiki/SSL_3.0_POODLE_Attack}.
-
-\bibitem{windows-papst-ciphers}
-  Der Windows Papst,
-  \textit{Recommended Cipher Suites 2025}, Juni 2024,
-  \url{https://www.der-windows-papst.de/2024/06/24/recommended-cipher-suites-2025/}.
-
-\bibitem{kes-bsi-tr}
-  \textit{kes -- Zeitschrift für Informations-Sicherheit},
-  \textit{Technische Richtlinien des BSI zur Kryptografie}, 2025,
-  \url{https://www.kes-informationssicherheit.de}.
-
-
-\bibitem{mozilla-ssl-gen}
-  \textit{Mozilla, ``SSL Configuration Generator.'' [Online].}
-  \url{https://ssl-config.mozilla.org/}
-
-\bibitem{cve-poodle}
-  NIST National Vulnerability Database,
-  \textit{CVE-2014-3566: SSL~3.0 Padding Oracle Vulnerability},
-  2014.
-  [Online]. Verfügbar:
-  \url{https://nvd.nist.gov/vuln/detail/CVE-2014-3566}
-
-\bibitem{cve-beast}
-  NIST National Vulnerability Database,
-  \textit{CVE-2011-3389: TLS~1.0 CBC Predictable IV (BEAST)},
-  2011.
-  [Online]. Verfügbar:
-  \url{https://nvd.nist.gov/vuln/detail/CVE-2011-3389}
-
-\end{thebibliography}
 \end{document}

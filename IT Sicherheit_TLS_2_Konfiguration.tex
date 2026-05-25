@@ -1,0 +1,138 @@
+\section{Konfigurationen von TLS}
+Um die im ersten Kapitel theoretischen Sicherheitsmechanismen von TLS in der Praxis zu benutzen, wird in diesem Kapitel ein empirisches Testszenario entworfen. Damit soll dargestellt werden, wie sich ein gehärtetes System gegenüber einer verwundbaren
+Konfiguration verhält und wie diese kommunizieren. Dadurch wird es in der Analysephase ermöglicht, die Auswirkungen auf Paket- und Log-Ebene zu identifizieren und geeignete Gegenmaßnahmen zu entwickeln.
+
+\subsection{Sichere Konfiguration}
+Für die praktische Durchführung werden zwei Client-Server-Paare definiert. Die  Konfigurationsparameter wurden so gewählt, dass sie die drei Schutzziele (Vertraulichkeit, Integrität, Authentizität) beeinflussen. Zur einfacheren Darstellung sind hier die Konfigurations-Parameter genannt, die in der nachfolgenden Ausarbeitung der Client-Server-Paare erläutert werden:
+
+\begin{itemize}
+  \item Protokollversion,
+  \item Schlüsselaustausch-Algorithmus (Key Exchange),
+  \item Verschlüsselungsmodus,
+  \item Integritätsschutz,
+  \item Zertifikatstyp und
+  \item Schlüssellänge.
+\end{itemize}
+
+Das Client-Server-Paar~1 simuliert eine moderne TLS-Implementierung nach aktuellen Sicherheitsstandards. Es beinhaltet die sichere TLS-Konfiguration.
+
+Als Protokollversion wird hier ausschließlich TLS~1.3 benutzt~\cite{rfc8446}. Es ist die neueste TLS-Version und verhindert veraltete, anfällige Handshake-Schritte. Dazu wird die Latenz beim Verbindungsaufbau im Gegensatz zu älteren Versionen erheblich reduziert.
+
+Die Schlüssel-Einigung erfolgt zwingend über den ephemeren Diffie-Hellman-Algorithmus auf Basis elliptischer Kurven (ECDHE). Dadurch wird das Schutzziel der Perfect Forward Secrecy (PFS) garantiert. Somit ist ein nachträgliches Entschlüsseln des Datenverkehrs selbst bei nachträglicher Kompromittierung des Server-Schlüssels mathematisch ausgeschlossen.
+
+Für den Verschlüsselungsmodus und Integritätsschutz wird ein AEAD-Verfahren (Authenticated Encryption with Associated Data) im Galois/Counter Mode (GCM) erzwungen~\cite{gcm-wiki}. Hier werden die Vertraulichkeit und der Integritätsschutz in einem Rechenschritt kombiniert, sodass kryptographische Angriffe auf die Blockstruktur des Systems verhindert werden können.
+
+Als Zertifikatstyp nutzt dieses Client-Server-Paar ein von einer vertrauenswürdigen Certificate Authority (CA) signiertes Zertifikat. Als Algorithmus für die Bestimmung der Schlüssellänge dient entweder der Elliptic Curve Digital Signature Algorithm (ECDSA)\,\cite{ecdsa-ref} oder ein starker 4096-Bit RSA-Schlüssel gemäß den BSI-Vorgaben~\cite{bsi-tr02102}. Beide Parameter kombiniert werden verwendet, um Identitätsfälschungen auszuschließen.
+
+\subsection{Veraltete Konfiguration}
+Das Client-Server-Paar~2 stellt ein ungepatchtes Altsystem dar und dient als Primärziel für die späteren Fehler-Simulationen. Es beinhaltet die unsichere TLS-Konfiguration.
+
+Der Server verwendet hier das ältere Protokoll TLS~1.2. Obwohl sie mit den richtigen Chiffren sicher gemacht werden kann, erlaubt sie in dieser Konfiguration des Client-Server-Paares rückwärtskompatible, unsichere Mechanismen~\cite{rfc8996}.
+
+Als Schlüsselaustausch-Algorithmus wird ein rein statischer RSA-Schlüsselaustausch konfiguriert~\cite{rsa-studyflix}. Hier besteht keine Forward Secrecy und gefährdet somit die Vertraulichkeit der Kommunikation auf lange Zeit, falls der Server-Schlüssel kompromittiert wird.
+
+Die gewählte Chiffre ist eine Blockchiffre im Cipher Block Chaining (CBC) Modus. Der folgende Integritätsschutz wird sehr unsicher über einen separaten SHA-1 Message Authentication Code (MAC) berechnet. Diese Trennung der beiden Vorgänge macht das Protokoll anfällig für Angriffe auf das Block-Padding.
+
+Der Server verwendet hier ein selbstsigniertes Zertifikat, welches keinerlei Vertrauensketten zu einer CA besitzt. Dazu wird eine mathematisch veraltete Schlüssellänge von nur 1024-Bit RSA gewählt~\cite{bsi-tr02102}. Dies führt zu einer unzureichenden Sicherheit des Systems.
+
+\subsection{Konfiguration der Simulationen}
+Für die Umsetzung des gegebenen TLS-Szenarios wird die Open-Source-Bibliothek OpenSSL in Kombination mit dem Netzwerkprotokoll-Analyse-Tool Wireshark verwendet~\cite{openssl}. Während in den Simulationen über OpenSSL die nötigen Strukturen aufgebaut werden und Handshakes direkt über das Terminal steuerbar sind, fungiert Wireshark als ein Werkzeug für die wichtige Paketaufzeichnung.
+
+Durch das parallele Mitschneiden des Datenverkehrs wird es in der nachfolgenden Analyse ermöglicht, den genauen Fluss der Pakete visuell zu zerlegen und Schwachstellen bis zur Bit-Ebene sichtbar zu machen. Die folgenden Befehle dienen als direkte Ausführungsdokumentation für die Simulationen.
+
+\subsection*{Generierung der Zertifikate}
+\begin{lstlisting}[style=consolestyle]
+# CSP 1: ECDSA P-256 Zertifikat (sicheres Paar)
+openssl ecparam -name prime256v1 -genkey -noout -out key_secure.pem
+openssl req -new -x509 -key key_secure.pem -out cert_secure.pem \
+  -days 365 -subj "/CN=secure.local"
+
+# CSP 2: RSA 1024 Bit, selbstsigniert (unsicheres Paar)
+openssl req -x509 -newkey rsa:1024 -keyout key_insecure.pem \
+  -out cert_insecure.pem -days 365 -nodes \
+  -subj "/CN=insecure.local"
+\end{lstlisting}
+
+\subsection*{CSP\,1 -- Sicheres Paar}
+\noindent\textbf{Terminal~1 -- Server:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4433 \
+  -cert cert_secure.pem \
+  -key key_secure.pem \
+  -tls1_3
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_client -connect localhost:4433 \
+  -tls1_3 \
+  -CAfile cert_secure.pem
+\end{lstlisting}
+
+\noindent\textbf{Erwartetes Ergebnis:}
+\begin{lstlisting}
+Protocol  : TLSv1.3
+Cipher    : TLS_AES_256_GCM_SHA384
+\end{lstlisting}
+
+\subsection*{CSP\,2 -- Unsicheres Paar}
+\noindent\textbf{Terminal~1 -- Server:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4434 \
+  -cert cert_insecure.pem \
+  -key key_insecure.pem \
+  -tls1_2 \
+  -cipher "AES128-SHA:AES256-SHA@SECLEVEL=0"
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_client -connect localhost:4434 \
+  -tls1_2 \
+  -cipher "AES128-SHA@SECLEVEL=0" \
+  -no-CAfile
+\end{lstlisting}
+
+\noindent\textbf{Erwartetes Ergebnis:}
+\begin{lstlisting}
+Protocol  : TLSv1.2
+Cipher    : AES128-SHA
+\end{lstlisting}
+
+
+\subsection{Fehlerfälle}
+\subsection*{Nicht-erfolgreicher Downgrade}
+\noindent\textbf{Terminal~1 -- Server (sicher):}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4433 \
+  -cert cert_secure.pem \
+  -key key_secure.pem \
+  -tls1_3
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+# Client versucht TLS 1.0 zu erzwingen -- Erwartet: alert protocol version (70)
+openssl s_client -connect localhost:4433 \
+  -tls1 \
+  -cipher "DEFAULT@SECLEVEL=0"
+\end{lstlisting}
+
+\subsection*{Erfolgreicher Downgrade}
+\noindent\textbf{Terminal~1 -- Server (unsicher):}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4434 \
+  -cert cert_insecure.pem \
+  -key key_insecure.pem \
+  -tls1_2 \
+  -cipher "AES128-SHA:AES256-SHA@SECLEVEL=0"
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+# Client akzeptiert TLS 1.0 explizit -- Erwartet: CONNECTED, Protocol: TLSv1
+openssl s_client -connect localhost:4434 \
+  -tls1 \
+  -cipher "DEFAULT@SECLEVEL=0" \
+  -no-CAfile
+\end{lstlisting}

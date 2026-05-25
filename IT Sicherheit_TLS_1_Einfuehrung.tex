@@ -1,0 +1,185 @@
+\section{Einführung}
+\subsection{Überblick über TLS}
+Transport Layer Security (TLS) ist ein kryptografisches Sicherheitsprotokoll zur Absicherung der Datenübertragung in Netzwerken. Es wird eingesetzt, um die Kommunikation zwischen zwei Parteien, Client und Server, vor Abhören, Manipulation und Identitätsfälschung zu schützen. TLS ist heute der Standard zur Absicherung von TCP-basierten Anwendungen und wird unter anderem im Internetprotokoll HTTPS verwendet. TLS ist der Nachfolger von Secure Socket Layer (SSL). Obwohl häufig noch von „SSL“ gesprochen wird, kommen in modernen Systemen ausschließlich TLS-Versionen zum Einsatz. TLS arbeitet zwischen der Anwendungs- und der Transportschicht und ermöglicht eine sichere Kommunikation über unsichere Netzwerke wie das Internet.
+\subsection{Ziele von TLS}
+TLS verfolgt drei wesentliche Sicherheitsziele:
+\begin{itemize}
+  \item \textbf{Vertraulichkeit (Confidentiality):} Schutz der übertragenen Daten vor unbefugtem Mitlesen durch Verschlüsselung.
+  \item \textbf{Integrität (Integrity):} Sicherstellung, dass Daten während der Übertragung nicht verändert oder manipuliert wurden.
+  \item \textbf{Authentifizierung (Authentication):} Überprüfung der Identität des Kommunikationspartners mithilfe digitaler Zertifikate.
+\end{itemize}
+
+\subsection{Grundlegende Funktionsweise von TLS}
+TLS kombiniert verschiedene kryptografische Verfahren:
+
+\subsection*{Symmetrische Verschlüsselung}
+Die eigentliche Datenübertragung erfolgt mithilfe symmetrischer Verschlüsselung. Dabei verwenden Client und Server denselben geheimen Sitzungsschlüssel (Session Key). Symmetrische Verfahren sind sehr effizient und eignen sich daher besonders für die schnelle Verschlüsselung großer Datenmengen.
+
+\subsection*{Asymmetrische Verschlüsselung}
+Zur sicheren Aushandlung bzw. zum Schutz der Sitzungsschlüssel werden asymmetrische Verfahren eingesetzt. Hierbei existiert ein Schlüsselpaar aus Public Key und Private Key.
+In modernen TLS-Versionen erfolgt der Schlüsselaustausch hauptsächlich über ECDHE (Elliptic Curve Diffie-Hellman Ephemeral). Dadurch kann ein gemeinsamer geheimer Schlüssel erzeugt werden, ohne dass dieser direkt übertragen werden muss.
+
+\subsection*{Integritätsschutz}
+TLS stellt sicher, dass Daten während der Übertragung nicht manipuliert werden. Ältere TLS-Versionen verwendeten dafür MACs (Message Authentication Codes). Moderne TLS-Versionen. insbesondere TLS 1.3, nutzen überwiegend sogenannte AEAD-Verfahren (Authenticated Encryption with Associated Data), die Verschlüsselung und Integritätsschutz kombinieren.
+
+\subsection*{Authentifizierung}
+Die Authentifizierung erfolgt über digitale Zertifikate. Diese bestätigen die Identität des Servers und ermöglichen dem Client die Überprüfung, ob er tatsächlich mit dem gewünschten Kommunikationspartner verbunden ist.
+
+
+\subsection{Die TLS-Verbindung}
+\subsection*{Verbindungsaufbau}
+Eine TLS-Verbindung besteht im Wesentlichen aus vier Phasen:
+\begin{enumerate}
+  \item TLS-Handshake
+  \item Authentifizierung und Zertifikatsprüfung
+  \item Schlüsselaustausch und Schlüsselableitung
+  \item Verschlüsselte Datenübertragung
+\end{enumerate}
+
+
+\begin{figure}[htp]\centering
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}[
+  >=Stealth,
+  every node/.style  = {font=\footnotesize},
+  lifeline/.style    = {thick},
+  msg/.style         = {->, thick},
+  msgenc/.style      = {->, thick, dashed},
+  msgapp/.style      = {<->, thick, double, double distance=1.5pt},
+  phaselabel/.style  = {font=\scriptsize\itshape, text width=2.5cm,
+                        align=left},
+]
+
+%% ── Koordinaten ──────────────────────────────────────
+\def\xcl{0}    % Client-Lifeline
+\def\xsr{9}    % Server-Lifeline
+
+%% ── Köpfe ────────────────────────────────────────────
+\node[font=\bfseries\small] at (\xcl, 0) {Client};
+\node[font=\bfseries\small] at (\xsr, 0) {Server};
+
+%% ── Lebenslinien ─────────────────────────────────────
+\draw[lifeline] (\xcl,-0.4) -- (\xcl,-6.6);
+\draw[lifeline] (\xsr,-0.4) -- (\xsr,-6.6);
+
+%% ════════════════════════════════════════════════════
+%%  Phase 1: KEY EXCHANGE  (unverschlüsselt)
+%% ════════════════════════════════════════════════════
+
+%% ClientHello  →  Server
+\draw[msg] (\xcl,-0.5) -- (\xsr,-1.5) 
+    node[midway, above, sloped, align=center] {\textbf{ClientHello}}
+    node[midway, below, sloped, align=center] {\textbf{+} supported versions (1.3) \textbf{+} client random\\\textbf{+} ciper suites list \textbf{+} parameters for premaster secret};
+    %\\+ key\_share \\ + signature\_algorithms\quad\\ + client\_random\\+ cipher\_suites
+
+%% Servernotiz:
+\node[phaselabel, right] at (\xsr+0.3,-2.1)
+    {generiert \\ Sitzungs-\\Schlüssel};
+
+%% ServerHello  →  Client
+\draw[msg] (\xsr,-2.3) -- (\xcl,-3.3)
+  node[midway, above, sloped, align=center]  {\textbf{ServerHello}}
+  node[midway, below, sloped, align=center]  {\textbf{+} Server Zertifikat \textbf{+} Digitale Signatur \textbf{+} Server random \\\textbf{+} Cipher Suit \textbf{+} Beendet}
+  node[midway, below, sloped, align=center,gray, font=\scriptsize] {\\\\\\verschlüsselt mit Handshake-Schlüssel};
+  %+ key\_share\quad + supported\_versions\\ + server\_random\quad + cipher\_suite
+
+%% ── Grau links ────────────────────────
+\draw [decorate, decoration={amplitude=5pt, mirror}, gray, thin]
+    (-0.2,-0.41) -- (-0.2,-3.35)
+    node[midway, left=5pt, phaselabel, text width=1.8cm, align=right]
+    {Key\\Exchange};
+
+%% ════════════════════════════════════════════════════
+%%  Phase 2: CLIENT AUTHENTICATION
+%%  (verschlüsselt)
+%% ════════════════════════════════════════════════════
+
+%% Finished (Client)
+\draw[msg] (\xcl,-4.3) -- (\xsr,-5.3) node[midway, above, sloped] {Beendet};
+
+%% ── Clientnotiz: verifiziert, leitet App-Schlüssel ab
+\node[phaselabel, left, text width=1.7cm, align=right]
+    at (\xcl-0.3,-3.6)
+    {verifiziert Server Signatur und Zertifikat.\\Generiert Sitzungsschlüssel};
+
+%% ════════════════════════════════════════════════════
+%%  Application Data
+%% ════════════════════════════════════════════════════
+\draw[msgapp] (\xcl,-6) -- (\xsr,-6)
+  node[midway, above] {[Application Data]}
+  node[gray,below, midway, font=\scriptsize] {verschlüsselt mit Application-Schlüssel};;
+
+\end{tikzpicture}
+}
+\caption{TLS~1.3 Handshake}
+\label{fig:tls13-handshake}
+\end{figure}
+
+In der Abbildung~\ref{fig:tls13-handshake} zum TLS-1.3-Handshake ist der grundlegende Ablauf des Verbindungsaufbaus zwischen Client und Server dargestellt. Zunächst sendet der Client eine Client Hello-Nachricht an den Server. Diese enthält unter anderem die unterstützte TLS-Version, eine Liste unterstützter Cipher Suites, Zufallswerte (Client Random) sowie Parameter für den Schlüsselaustausch. \\
+Der Server antwortet anschließend mit einer Server Hello-Nachricht. Darin teilt der Server die ausgewählte Cipher Suite mit und übermittelt sein digitales Zertifikat sowie eine digitale Signatur. Mithilfe des Zertifikats kann sich der Server gegenüber dem Client authentifizieren. Der Client überprüft daraufhin die Gültigkeit des Zertifikats sowie die Signatur der Zertifizierungsstelle. \\
+Nach erfolgreicher Verifikation führen beide Kommunikationspartner den Schlüsselaustausch durch und erzeugen daraus einen gemeinsamen Sitzungsschlüssel (Session Key). Dieser Schlüssel wird anschließend für die symmetrische Verschlüsselung der weiteren Kommunikation verwendet. Nachdem der Handshake abgeschlossen wurde, kann die eigentliche verschlüsselte Datenübertragung beginnen.
+
+
+\subsection*{Cipher Suites}
+Eine Cipher Suite beschreibt die kryptografischen Verfahren, die während der TLS-Verbindung verwendet werden. Dazu gehören unter anderem:
+\begin{itemize}
+  \item Verfahren zum Schlüsselaustausch
+  \item Verschlüsselungsalgorithmen
+  \item Verfahren zur Integritätsprüfung
+\end{itemize}
+Client und Server müssen sich während des Handshakes auf eine gemeinsame Cipher Suite einigen.
+
+\subsubsection*{Unterschiede zu älteren TLS-Versionen}
+In älteren TLS-Versionen wurde häufig RSA für den Schlüsselaustausch verwendet. Dabei erzeugte der Client einen geheimen Sitzungsschlüssel und verschlüsselte diesen mit dem öffentlichen Schlüssel des Servers. \\
+TLS 1.3 unterstützt dieses Verfahren nicht mehr. Stattdessen wird überwiegend ECDHE verwendet, da dieses Verfahren sicherer ist und sogenannte Perfect Forward Secrecy ermöglicht. Dadurch bleiben vergangene Kommunikationsdaten selbst dann geschützt, wenn ein langfristiger Schlüssel kompromittiert wird.
+
+\subsection*{Authentifizierung des Servers}
+Der Server authentifiziert sich gegenüber dem Client mithilfe eines digitalen Zertifikats. Dieses Zertifikat enthält unter anderem:
+\begin{itemize}
+  \item den Domainnamen
+  \item den öffentlichen Schlüssel des Servers
+  \item der Gültigkeit
+  \item Informationen über die ausstellende Zertifizierungsstelle
+  \item die digitale Signatur der Certificate Authority (CA)
+\end{itemize}
+Während des TLS-Handshakes weist der Server nach, dass er im Besitz des zugehörigen Private Keys ist. Der Client überprüft anschließend die digitale Signatur des Zertifikats und kontrolliert, ob dieses von einer vertrauenswürdigen Zertifizierungsstelle ausgestellt wurde. Dadurch kann der Client sicherstellen, dass der Server authentisch ist.
+
+\subsection*{Zertifikatsprüfung und Vertrauensketten}
+Die grundlegende Idee eines TLS-Zertifikats besteht darin, einen öffentlichen Schlüssel eindeutig mit einer Identität - meist einem Domainnamen - zu verknüpfen. Der Client vertraut dabei nicht direkt dem Serverzertifikat selbst, sondern der Zertifizierungsstelle, die dieses Zertifikat signiert hat.
+
+Die Vertrauenskette bei TLS sieht typischerweise wie folgt aus:
+\begin{lstlisting}
+Root CA → signiert → Intermediate CA → signiert → Serverzertifikat
+\end{lstlisting}
+Die Root Certificate Authority ist selbstsigniert und befindet sich bereits im sogenannten Trust Store des Betriebssystems oder Browsers. Dieser Trust Store enthält vertrauenswürdige Root-Zertifikate. \\
+Aus Sicherheitsgründen signieren Root CAs Serverzertifikate normalerweise nicht direkt. Stattdessen werden sogenannte Intermediate CAs verwendet. Dies bietet mehrere Vorteile:
+\begin{itemize}
+  \item höhere Sicherheit
+  \item einfacherer Widerruf kompromittierter Zertifikate
+  \item geringeres Risiko bei einer Kompromittierung der Root CA
+\end{itemize}
+Die Intermediate CA signiert anschließend das eigentliche Serverzertifikat.
+
+\subsubsection*{Überprüfung der Zertifikatskette}
+Beim Verbindungsaufbau überprüft der Browser bzw. Client mehrere Punkte:
+\begin{itemize}
+  \item Ist die digitale Signatur korrekt?
+  \item Ist die Zertifikatskette vollständig?
+  \item Ist die Root CA vertrauenswürdig?
+  \item Ist das Zertifikat noch gültig?
+  \item Passt der Domainname zum Zertifikat?
+\end{itemize}
+Kann der Client die Zertifikatskette erfolgreich bis zu einer vertrauenswürdigen Root CA zurückverfolgen, wird das Zertifikat als vertrauenswürdig akzeptiert und die Verbindung hergestellt.
+
+\subsection*{Schlüsselaustausch und Session Keys}
+Nach erfolgreicher Authentifizierung führen Client und Server einen kryptografischen Schlüsselaustausch durch. In modernen TLS-Versionen erfolgt dies meist über ECDHE. Dabei erzeugen beide Kommunikationspartner gemeinsam einen geheimen Sitzungsschlüssel, ohne diesen direkt zu übertragen. Aus diesem Schlüsselaustausch werden anschließend die Session Keys für die symmetrische Verschlüsselung abgeleitet.
+
+\subsection*{Verschlüsselte Datenübertragung}
+Nachdem der Handshake abgeschlossen wurde und beide Seiten gemeinsame Sitzungsschlüssel besitzen, beginnt die eigentliche Kommunikation. Die übertragenen Daten werden nun symmetrisch verschlüsselt. Zusätzlich wird ihre Integrität überprüft.
+
+\subsection*{Integritätsschutz mit MACs und AEAD}
+Bei älteren TLS-Versionen wurde ein Message Authentication Code (MAC) verwendet. Dabei berechnen Sender und Empfänger mithilfe des gemeinsamen geheimen Schlüssels einen Prüfwert über die übertragenen Daten. Stimmen die berechneten Werte überein, wurde die Nachricht nicht manipuliert. Moderne TLS-Versionen verwenden überwiegend AEAD-Verfahren wie AES-GCM oder ChaCha20-Poly1305. Diese kombinieren Verschlüsselung und Integritätsschutz in einem einzigen Verfahren.
+
+\subsection{Zusammenfassung}
+TLS ermöglicht eine sichere Kommunikation über unsichere Netzwerke. Dazu kombiniert das Protokoll asymmetrische und symmetrische Kryptografie, digitale Zertifikate sowie kryptografische Integritätsprüfungen.
+Der TLS-Handshake dient dabei der sicheren Aushandlung aller benötigten Parameter und Schlüssel. Zertifikate und Vertrauensketten ermöglichen die Authentifizierung des Servers. Anschließend erfolgt die verschlüsselte und integritätsgeschützte Datenübertragung mithilfe gemeinsamer Sitzungsschlüssel.
