@@ -2,19 +2,12 @@
 
 \subsection{Simulationsumgebung}
 
-Um die Fehler- und Manipulationsszenarien des Transport Layer Security (TLS) praktisch zu
-analysieren, wurde eine kontrollierte, lokale Loopback-Umgebung (127.0.0.1) auf einem
-Windows-Endgerät implementiert. Als kryptographische Grundlage kam OpenSSL (Version
-3.6.1) sowohl auf Client- als auch auf Server-Seite zum Einsatz~\cite{openssl}.
-Aufgezeichnet wurde der Datenverkehr parallel auf dem Loopback-Interface mittels der
-Netzwerk-Analysesoftware Wireshark. Außerdem wurden aktuelle
-Konfigurationsrichtlinien für sichere Web-Umgebungen herangezogen~\cite{mdndocs}.
+Für die praktische Analyse wurde eine lokale Loopback-Umgebung (127.0.0.1) auf einem
+Windows-System eingerichtet. OpenSSL 3.6.1 diente auf Client und Server als kryptographische Grundlage~\cite{openssl}. Der Datenverkehr wurde parallel mit Wireshark aufgezeichnet, um den Handshake-Verlauf und Fehlermeldungen auf Paketebene zu analysieren.
 
 \subsection{TLS-Fehlersimulation und Log-Analyse}
 
-Die Aufgabenstellung erfordert die Simulation eines Downgrade- bzw.\
-Handshake-Fehlerfalls sowie die Analyse der Stellen, an denen Schutzmechanismen
-greifen oder geschwächt werden.
+Es werden ein Downgrade- und ein Handshake-Fehlerfall simuliert, um zu untersuchen, wo Schutzmechanismen greifen oder versagen.
 
 % ── Szenario 1 ────────────────────────────────────────────────────────────────
 \subsection{Szenario~1: Nicht-erfolgreicher Downgrade (Handshake-Fehlerfall)}
@@ -82,12 +75,9 @@ Anhang~\ref{app:sz2-log} zeigt das Protokoll-Log des Terminals des Clients.
 
 \subsection*{Bewertung der Schwachstelle}
 
-An dieser Stelle versagen die Sicherheitsmechanismen der Transportschicht im realen
-Betrieb~\cite{sentinelone}. Obwohl für den Anwender eine etablierte Verschlüsselung
-signalisiert wird (\texttt{CONNECTED}), ist die Vertraulichkeit und Integrität der Daten
-nach heutigem Standard stark gefährdet. Durch die Schwachstellen von TLS~1.0 können
-Angreifer im Netzpfad (Man-in-the-Middle) die Sitzung mit modernen Rechenkapazitäten
-passiv abhören oder manipulieren~\cite{sentinelone,mdndocs}.
+Mit abgeschwächten Sicherheitsregeln ist die Verbindung zwar aufgebaut (\texttt{CONNECTED}), aber nicht mehr
+zeitgemäß geschützt. TLS~1.0 bietet keine ausreichende Vertraulichkeit und Integrität,
+so dass ein Man-in-the-Middle-Angriff möglich wird~\cite{sentinelone,mdndocs}.
 
 % ── Vergleichstabelle ─────────────────────────────────────────────────────────
 \subsection{Analytische Gegenüberstellung der Simulationsergebnisse}
