@@ -36,103 +36,10 @@ Die gewählte Chiffre ist eine Blockchiffre im Cipher Block Chaining (CBC) Modus
 Der Server verwendet hier ein selbstsigniertes Zertifikat, welches keinerlei Vertrauensketten zu einer CA besitzt. Dazu wird eine mathematisch veraltete Schlüssellänge von nur 1024-Bit RSA gewählt~\cite{bsi-tr02102}. Dies führt zu einer unzureichenden Sicherheit des Systems.
 
 \subsection{Konfiguration der Simulationen}
+
+
 Für die Umsetzung des gegebenen TLS-Szenarios wird die Open-Source-Bibliothek OpenSSL in Kombination mit dem Netzwerkprotokoll-Analyse-Tool Wireshark verwendet~\cite{openssl}. Während in den Simulationen über OpenSSL die nötigen Strukturen aufgebaut werden und Handshakes direkt über das Terminal steuerbar sind, fungiert Wireshark als ein Werkzeug für die wichtige Paketaufzeichnung.
 
 Durch das parallele Mitschneiden des Datenverkehrs wird es in der nachfolgenden Analyse ermöglicht, den genauen Fluss der Pakete visuell zu zerlegen und Schwachstellen bis zur Bit-Ebene sichtbar zu machen. Die folgenden Befehle dienen als direkte Ausführungsdokumentation für die Simulationen.
 
-\subsection*{Generierung der Zertifikate}
-\begin{lstlisting}[style=consolestyle]
-# CSP 1: ECDSA P-256 Zertifikat (sicheres Paar)
-openssl ecparam -name prime256v1 -genkey -noout -out key_secure.pem
-openssl req -new -x509 -key key_secure.pem -out cert_secure.pem \
-  -days 365 -subj "/CN=secure.local"
-
-# CSP 2: RSA 1024 Bit, selbstsigniert (unsicheres Paar)
-openssl req -x509 -newkey rsa:1024 -keyout key_insecure.pem \
-  -out cert_insecure.pem -days 365 -nodes \
-  -subj "/CN=insecure.local"
-\end{lstlisting}
-
-\subsection*{CSP\,1 -- Sicheres Paar}
-\noindent\textbf{Terminal~1 -- Server:}
-\begin{lstlisting}[style=consolestyle]
-openssl s_server -accept 4433 \
-  -cert cert_secure.pem \
-  -key key_secure.pem \
-  -tls1_3
-\end{lstlisting}
-
-\noindent\textbf{Terminal~2 -- Client:}
-\begin{lstlisting}[style=consolestyle]
-openssl s_client -connect localhost:4433 \
-  -tls1_3 \
-  -CAfile cert_secure.pem
-\end{lstlisting}
-
-\noindent\textbf{Erwartetes Ergebnis:}
-\begin{lstlisting}
-Protocol  : TLSv1.3
-Cipher    : TLS_AES_256_GCM_SHA384
-\end{lstlisting}
-
-\subsection*{CSP\,2 -- Unsicheres Paar}
-\noindent\textbf{Terminal~1 -- Server:}
-\begin{lstlisting}[style=consolestyle]
-openssl s_server -accept 4434 \
-  -cert cert_insecure.pem \
-  -key key_insecure.pem \
-  -tls1_2 \
-  -cipher "AES128-SHA:AES256-SHA@SECLEVEL=0"
-\end{lstlisting}
-
-\noindent\textbf{Terminal~2 -- Client:}
-\begin{lstlisting}[style=consolestyle]
-openssl s_client -connect localhost:4434 \
-  -tls1_2 \
-  -cipher "AES128-SHA@SECLEVEL=0" \
-  -no-CAfile
-\end{lstlisting}
-
-\noindent\textbf{Erwartetes Ergebnis:}
-\begin{lstlisting}
-Protocol  : TLSv1.2
-Cipher    : AES128-SHA
-\end{lstlisting}
-
-
-\subsection{Fehlerfälle}
-\subsection*{Nicht-erfolgreicher Downgrade}
-\noindent\textbf{Terminal~1 -- Server (sicher):}
-\begin{lstlisting}[style=consolestyle]
-openssl s_server -accept 4433 \
-  -cert cert_secure.pem \
-  -key key_secure.pem \
-  -tls1_3
-\end{lstlisting}
-
-\noindent\textbf{Terminal~2 -- Client:}
-\begin{lstlisting}[style=consolestyle]
-# Client versucht TLS 1.0 zu erzwingen -- Erwartet: alert protocol version (70)
-openssl s_client -connect localhost:4433 \
-  -tls1 \
-  -cipher "DEFAULT@SECLEVEL=0"
-\end{lstlisting}
-
-\subsection*{Erfolgreicher Downgrade}
-\noindent\textbf{Terminal~1 -- Server (unsicher):}
-\begin{lstlisting}[style=consolestyle]
-openssl s_server -accept 4434 \
-  -cert cert_insecure.pem \
-  -key key_insecure.pem \
-  -tls1_2 \
-  -cipher "AES128-SHA:AES256-SHA@SECLEVEL=0"
-\end{lstlisting}
-
-\noindent\textbf{Terminal~2 -- Client:}
-\begin{lstlisting}[style=consolestyle]
-# Client akzeptiert TLS 1.0 explizit -- Erwartet: CONNECTED, Protocol: TLSv1
-openssl s_client -connect localhost:4434 \
-  -tls1 \
-  -cipher "DEFAULT@SECLEVEL=0" \
-  -no-CAfile
-\end{lstlisting}
+Die genaue Dokumentation der Simulationskonfiguration -- einschließlich der Zertifikatsgenerierung, der Client-Server-Paar-Setups und der Fehlerfall-Szenarien -- ist im Anhang (Abschnitt~\ref{app:simulation-config}) ausführlich dokumentiert. Dort finden Sie alle OpenSSL-Befehle und erwarteten Ausgaben für die sichere und unsichere TLS-Konfiguration sowie für den erfolgreichen und nicht-erfolgreichen Downgrade-Versuch.

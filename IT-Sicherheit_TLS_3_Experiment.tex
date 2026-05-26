@@ -92,37 +92,4 @@ passiv abhören oder manipulieren~\cite{sentinelone,mdndocs}.
 % ── Vergleichstabelle ─────────────────────────────────────────────────────────
 \subsection{Analytische Gegenüberstellung der Simulationsergebnisse}
 
-Zur übersichtlichen Strukturierung der Ergebnisse sind die Auswirkungen der beiden
-Konfigurationen in Tabelle~\ref{tab:vergleich} zusammenfassend gegenübergestellt.
-
-\begin{table}[ht]
-\caption{Vergleichsmatrix der simulierten TLS-Fehlerfälle}
-\label{tab:vergleich}
-\centering
-\footnotesize
-\renewcommand{\arraystretch}{1.3}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lll}
-\toprule
-\textbf{Kriterium}
-  & \textbf{Szenario~1: Mismatch}
-  & \textbf{Szenario~2: Downgrade} \\
-\midrule
-Server-Vorgabe
-  & Erzwingung TLS~1.0
-  & Erzwingung TLS~1.0 \\
-Client-Konfiguration
-  & Standard (Level $\geq$ 1)
-  & Deaktiviert (Level~0) \\
-Handshake-Verlauf
-  & Abbruch (Fatal Alert)
-  & Erfolgreich (\texttt{CONNECTED}) \\
-Log-Indikator
-  & \texttt{SSL alert number 70}
-  & \texttt{Protocol: TLSv1} \\
-Sicherheitszustand
-  & Sicher (Leitung blockiert)
-  & Insecure (vulnerabel) \\
-\bottomrule
-\end{tabular}}
-\end{table}
+Zur übersichtlichen Strukturierung der Ergebnisse sind die Auswirkungen der beiden Konfigurationen in Tabelle~\ref{tab:vergleich} im Anhang (Abschnitt~\ref{app:vergleichstabelle}) zusammenfassend gegenübergestellt.

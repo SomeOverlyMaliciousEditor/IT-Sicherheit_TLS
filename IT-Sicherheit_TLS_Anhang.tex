@@ -1,7 +1,188 @@
+\section{TLS-1.3 Handshake Diagramm}
+\label{app:tls-handshake}
+
+\begin{figure}[htp]\centering
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}[
+  >=Stealth,
+  every node/.style  = {font=\footnotesize},
+  lifeline/.style    = {thick},
+  msg/.style         = {->, thick},
+  msgenc/.style      = {->, thick, dashed},
+  msgapp/.style      = {<->, thick, double, double distance=1.5pt},
+  phaselabel/.style  = {font=\scriptsize\itshape, text width=2.5cm,
+                        align=left},
+]
+
+%% ── Koordinaten ──────────────────────────────────────
+\def\xcl{0}    % Client-Lifeline
+\def\xsr{9}    % Server-Lifeline
+
+%% ── Köpfe ────────────────────────────────────────────
+\node[font=\bfseries\small] at (\xcl, 0) {Client};
+\node[font=\bfseries\small] at (\xsr, 0) {Server};
+
+%% ── Lebenslinien ─────────────────────────────────────
+\draw[lifeline] (\xcl,-0.4) -- (\xcl,-6.6);
+\draw[lifeline] (\xsr,-0.4) -- (\xsr,-6.6);
+
+%% ════════════════════════════════════════════════════
+%%  Phase 1: KEY EXCHANGE  (unverschlüsselt)
+%% ════════════════════════════════════════════════════
+
+%% ClientHello  →  Server
+\draw[msg] (\xcl,-0.5) -- (\xsr,-1.5) 
+    node[midway, above, sloped, align=center] {\textbf{ClientHello}}
+    node[midway, below, sloped, align=center] {\textbf{+} supported versions (1.3) \textbf{+} client random\\\textbf{+} ciper suites list \textbf{+} parameters for premaster secret};
+
+%% Servernotiz:
+\node[phaselabel, right] at (\xsr+0.3,-2.1)
+    {generiert \\ Sitzungs-\\Schlüssel};
+
+%% ServerHello  →  Client
+\draw[msg] (\xsr,-2.3) -- (\xcl,-3.3)
+  node[midway, above, sloped, align=center]  {\textbf{ServerHello}}
+  node[midway, below, sloped, align=center]  {\textbf{+} Server Zertifikat \textbf{+} Digitale Signatur \textbf{+} Server random \\\textbf{+} Cipher Suit \textbf{+} Beendet}
+  node[midway, below, sloped, align=center,gray, font=\scriptsize] {\\\\\\verschlüsselt mit Handshake-Schlüssel};
+
+%% ── Grau links ────────────────────────
+\draw [decorate, decoration={amplitude=5pt, mirror}, gray, thin]
+    (-0.2,-0.41) -- (-0.2,-3.35)
+    node[midway, left=5pt, phaselabel, text width=1.8cm, align=right]
+    {Key\\Exchange};
+
+%% ════════════════════════════════════════════════════
+%%  Phase 2: CLIENT AUTHENTICATION
+%%  (verschlüsselt)
+%% ════════════════════════════════════════════════════
+
+%% Finished (Client)
+\draw[msg] (\xcl,-4.3) -- (\xsr,-5.3) node[midway, above, sloped] {Beendet};
+
+%% ── Clientnotiz: verifiziert, leitet App-Schlüssel ab
+\node[phaselabel, left, text width=1.7cm, align=right]
+    at (\xcl-0.3,-3.6)
+    {verifiziert Server Signatur und Zertifikat.\\Generiert Sitzungsschlüssel};
+
+%% ════════════════════════════════════════════════════
+%%  Application Data
+%% ════════════════════════════════════════════════════
+\draw[msgapp] (\xcl,-6) -- (\xsr,-6)
+  node[midway, above] {[Application Data]}
+  node[gray,below, midway, font=\scriptsize] {verschlüsselt mit Application-Schlüssel};;
+
+\end{tikzpicture}
+}
+\caption{TLS~1.3 Handshake}
+\label{fig:tls13-handshake}
+\end{figure}
+
+
+\section{Detaillierte Simulationskonfiguration}
+\label{app:simulation-config}
+
+
+\subsection*{Generierung der Zertifikate}
+\begin{lstlisting}[style=consolestyle]
+# CSP 1: ECDSA P-256 Zertifikat (sicheres Paar)
+openssl ecparam -name prime256v1 -genkey -noout -out key_secure.pem
+openssl req -new -x509 -key key_secure.pem -out cert_secure.pem \
+  -days 365 -subj "/CN=secure.local"
+
+# CSP 2: RSA 1024 Bit, selbstsigniert (unsicheres Paar)
+openssl req -x509 -newkey rsa:1024 -keyout key_insecure.pem \
+  -out cert_insecure.pem -days 365 -nodes \
+  -subj "/CN=insecure.local"
+\end{lstlisting}
+
+\subsection*{CSP\,1 -- Sicheres Paar}
+\noindent\textbf{Terminal~1 -- Server:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4433 \
+  -cert cert_secure.pem \
+  -key key_secure.pem \
+  -tls1_3
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_client -connect localhost:4433 \
+  -tls1_3 \
+  -CAfile cert_secure.pem
+\end{lstlisting}
+
+\noindent\textbf{Erwartetes Ergebnis:}
+\begin{lstlisting}
+Protocol  : TLSv1.3
+Cipher    : TLS_AES_256_GCM_SHA384
+\end{lstlisting}
+
+\subsection*{CSP\,2 -- Unsicheres Paar}
+\noindent\textbf{Terminal~1 -- Server:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4434 \
+  -cert cert_insecure.pem \
+  -key key_insecure.pem \
+  -tls1_2 \
+  -cipher "AES128-SHA:AES256-SHA@SECLEVEL=0"
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_client -connect localhost:4434 \
+  -tls1_2 \
+  -cipher "AES128-SHA@SECLEVEL=0" \
+  -no-CAfile
+\end{lstlisting}
+
+\noindent\textbf{Erwartetes Ergebnis:}
+\begin{lstlisting}
+Protocol  : TLSv1.2
+Cipher    : AES128-SHA
+\end{lstlisting}
+
+\subsection*{Fehler- und Downgrade-Szenarien}
+
+\subsubsection*{Nicht-erfolgreicher Downgrade}
+\noindent\textbf{Terminal~1 -- Server (sicher):}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4433 \
+  -cert cert_secure.pem \
+  -key key_secure.pem \
+  -tls1_3
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+# Client versucht TLS 1.0 zu erzwingen -- Erwartet: alert protocol version (70)
+openssl s_client -connect localhost:4433 \
+  -tls1 \
+  -cipher "DEFAULT@SECLEVEL=0"
+\end{lstlisting}
+
+\subsubsection*{Erfolgreicher Downgrade}
+\noindent\textbf{Terminal~1 -- Server (unsicher):}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4434 \
+  -cert cert_insecure.pem \
+  -key key_insecure.pem \
+  -tls1_2 \
+  -cipher "AES128-SHA:AES256-SHA@SECLEVEL=0"
+\end{lstlisting}
+
+\noindent\textbf{Terminal~2 -- Client:}
+\begin{lstlisting}[style=consolestyle]
+# Client akzeptiert TLS 1.0 explizit -- Erwartet: CONNECTED, Protocol: TLSv1
+openssl s_client -connect localhost:4434 \
+  -tls1 \
+  -cipher "DEFAULT@SECLEVEL=0" \
+  -no-CAfile
+\end{lstlisting}
+
 \section{OpenSSL-Befehle Szenario~1}
 \label{app:sz1-befehle}
 
-\noindent\textbf{Server-Befehl (TLS~1.0 erzwingen):}
+\textbf{Server-Befehl (TLS~1.0 erzwingen):}
 \begin{lstlisting}[style=consolestyle]
 openssl s_server -accept 4433 -cert cert.pem -key key.pem -tls1
 \end{lstlisting}
@@ -58,3 +239,62 @@ Protocol : TLSv1
 Server public key is 2048 bit
 Secure Renegotiation IS NOT supported
 \end{lstlisting}
+
+\section{Vergleichstabelle der Simulationen}
+\label{app:vergleichstabelle}
+
+\begin{table}[h!]
+\caption{Vergleichsmatrix der simulierten TLS-Fehlerfälle}
+\label{tab:vergleich}
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lll}
+\toprule
+\textbf{Kriterium}
+  & \textbf{Szenario~1: Mismatch}
+  & \textbf{Szenario~2: Downgrade} \\
+\midrule
+Server-Vorgabe
+  & Erzwingung TLS~1.0
+  & Erzwingung TLS~1.0 \\
+Client-Konfiguration
+  & Standard (Level $\geq$ 1)
+  & Deaktiviert (Level~0) \\
+Handshake-Verlauf
+  & Abbruch (Fatal Alert)
+  & Erfolgreich (\texttt{CONNECTED}) \\
+Log-Indikator
+  & \texttt{SSL alert number 70}
+  & \texttt{Protocol: TLSv1} \\
+Sicherheitszustand
+  & Sicher (Leitung blockiert)
+  & Insecure (vulnerabel) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{Tabelle der Auswirkungen auf Schutzziele}
+\label{app:auswirkungstabelle}
+
+\begin{table}[h!]
+\caption{Auswirkungen auf die Schutzziele (CIA)}
+\label{tab:Auswirkungen-Schutzziele}
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Schutzziel}
+  & \textbf{Angriff POODLE \cite{cve-poodle}}
+  & \textbf{Self-Signed-Cert} \\
+\midrule
+Vertraulichkeit & \xmark\ Verletzt    & $\circ$\ Gefährdet  \\
+Integrität      & \xmark\ Verletzt    & $\circ$\ Partiell   \\
+Authentizität   & \xmark\ Verletzt    & \xmark\ Verletzt    \\
+\bottomrule
+\multicolumn{3}{l}{\scriptsize \xmark~= verletzt;\quad
+  $\circ$~= partiell gefährdet}
+\end{tabular}
+\end{table}
