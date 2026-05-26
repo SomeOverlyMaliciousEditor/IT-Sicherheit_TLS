@@ -9,7 +9,7 @@ Als Protokollversion wird TLS~1.3 verwendet~\cite{rfc8446}. Der Schlüsselaustau
 \subsection{Veraltete Konfiguration}
 Das Client-Server-Paar~2 stellt ein ungepatchtes Altsystem dar und dient als Primärziel für die späteren Fehler-Simulationen. Es beinhaltet die unsichere TLS-Konfiguration.
 
-Es nutzt TLS~1.2 mit rückwärtskompatiblen, unsicheren Mechanismen~\cite{rfc8996}. Der Schlüsselaustausch erfolgt statisch per RSA~\cite{rsa-studyflix}, wodurch keine Forward Secrecy besteht. Verschlüsselung per CBC und Integritätsschutz per SHA-1 MAC sind anfällig für Padding-Angriffe. Das Zertifikat ist selbstsigniert und verwendet nur 1024-Bit RSA~\cite{bsi-tr02102}.
+Es verwendet TLS~1.2 mit rückwärtskompatiblen, unsicheren Mechanismen~\cite{rfc8996}. Der Schlüsselaustausch erfolgt statisch per RSA~\cite{rsa-studyflix}, wodurch keine Forward Secrecy besteht. Verschlüsselung per CBC und Integritätsschutz per SHA-1 MAC sind anfällig für Padding-Angriffe. Das Zertifikat ist selbstsigniert und verwendet nur 1024-Bit RSA~\cite{bsi-tr02102}.
 
 \subsection{Konfiguration der Simulationen}
 

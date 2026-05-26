@@ -1,6 +1,6 @@
 \section{Einführung}
 \subsection{Überblick über TLS}
-Transport Layer Security (TLS) ist ein kryptografisches Sicherheitsprotokoll zur Absicherung der Datenübertragung in Netzwerken. Es wird eingesetzt, um die Kommunikation zwischen zwei Parteien, Client und Server, vor Abhören, Manipulation und Identitätsfälschung zu schützen. TLS ist heute der Standard zur Absicherung von TCP-basierten Anwendungen und wird unter anderem im Internetprotokoll HTTPS verwendet. TLS ist der Nachfolger von Secure Socket Layer (SSL). Obwohl häufig noch von „SSL“ gesprochen wird, kommen in modernen Systemen ausschließlich TLS-Versionen zum Einsatz. TLS arbeitet zwischen der Anwendungs- und der Transportschicht und ermöglicht eine sichere Kommunikation über unsichere Netzwerke wie das Internet.
+Transport Layer Security (TLS) ist ein kryptografisches Sicherheitsprotokoll zur Absicherung der Datenübertragung in Netzwerken \\cite{rfc8446}. Es wird eingesetzt, um die Kommunikation zwischen zwei Parteien, Client und Server, vor Abhören, Manipulation und Identitätsfälschung zu schützen. TLS ist heute der Standard zur Absicherung von TCP-basierten Anwendungen und wird unter anderem im Internetprotokoll HTTPS verwendet. TLS ist der Nachfolger von Secure Socket Layer (SSL). Obwohl häufig noch von „SSL“ gesprochen wird, kommen in modernen Systemen ausschließlich TLS-Versionen zum Einsatz. TLS arbeitet zwischen der Anwendungs- und der Transportschicht und ermöglicht eine sichere Kommunikation über unsichere Netzwerke wie das Internet.
 \subsection{Ziele von TLS}
 TLS verfolgt drei wesentliche Sicherheitsziele:
 \begin{itemize}
@@ -17,10 +17,10 @@ Die eigentliche Datenübertragung erfolgt mithilfe symmetrischer Verschlüsselun
 
 \subsection*{Asymmetrische Verschlüsselung}
 Zur sicheren Aushandlung bzw. zum Schutz der Sitzungsschlüssel werden asymmetrische Verfahren eingesetzt. Hierbei existiert ein Schlüsselpaar aus Public Key und Private Key.
-In modernen TLS-Versionen erfolgt der Schlüsselaustausch hauptsächlich über ECDHE (Elliptic Curve Diffie-Hellman Ephemeral). Dadurch kann ein gemeinsamer geheimer Schlüssel erzeugt werden, ohne dass dieser direkt übertragen werden muss.
+In modernen TLS-Versionen erfolgt der Schlüsselaustausch hauptsächlich über ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) \\cite{rfc8446}. Dadurch kann ein gemeinsamer geheimer Schlüssel erzeugt werden, ohne dass dieser direkt übertragen werden muss.
 
 \subsection*{Integritätsschutz}
-TLS stellt sicher, dass Daten während der Übertragung nicht manipuliert werden. Ältere TLS-Versionen verwendeten dafür MACs (Message Authentication Codes). Moderne TLS-Versionen. insbesondere TLS 1.3, nutzen überwiegend sogenannte AEAD-Verfahren (Authenticated Encryption with Associated Data), die Verschlüsselung und Integritätsschutz kombinieren.
+TLS stellt sicher, dass Daten während der Übertragung nicht manipuliert werden. Ältere TLS-Versionen verwendeten dafür MACs (Message Authentication Codes). Moderne TLS-Versionen, insbesondere TLS 1.3, nutzen überwiegend sogenannte AEAD-Verfahren (Authenticated Encryption with Associated Data), die Verschlüsselung und Integritätsschutz kombinieren \\cite{rfc8446}.
 
 \subsection*{Authentifizierung}
 Die Authentifizierung erfolgt über digitale Zertifikate. Diese bestätigen die Identität des Servers und ermöglichen dem Client die Überprüfung, ob er tatsächlich mit dem gewünschten Kommunikationspartner verbunden ist.
