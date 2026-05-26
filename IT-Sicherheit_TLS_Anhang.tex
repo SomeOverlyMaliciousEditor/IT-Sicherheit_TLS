@@ -69,7 +69,7 @@
 %% ════════════════════════════════════════════════════
 \draw[msgapp] (\xcl,-6) -- (\xsr,-6)
   node[midway, above] {[Application Data]}
-  node[gray,below, midway, font=\scriptsize] {verschlüsselt mit Application-Schlüssel};;
+  node[gray,below, midway, font=\scriptsize] {verschlüsselt mit Application-Schlüssel};
 
 \end{tikzpicture}
 }
@@ -85,12 +85,16 @@
 \subsection*{Generierung der Zertifikate}
 \begin{lstlisting}[style=consolestyle]
 # CSP 1: ECDSA P-256 Zertifikat (sicheres Paar)
-openssl ecparam -name prime256v1 -genkey -noout -out key_secure.pem
-openssl req -new -x509 -key key_secure.pem -out cert_secure.pem \
+openssl ecparam -name prime256v1 -genkey -noout \
+  -out key_secure.pem
+
+openssl req -new -x509 -key key_secure.pem \
+  -out cert_secure.pem \
   -days 365 -subj "/CN=secure.local"
 
 # CSP 2: RSA 1024 Bit, selbstsigniert (unsicheres Paar)
-openssl req -x509 -newkey rsa:1024 -keyout key_insecure.pem \
+openssl req -x509 -newkey rsa:1024 \ 
+  -keyout key_insecure.pem \
   -out cert_insecure.pem -days 365 -nodes \
   -subj "/CN=insecure.local"
 \end{lstlisting}
@@ -184,7 +188,8 @@ openssl s_client -connect localhost:4434 \
 
 \textbf{Server-Befehl (TLS~1.0 erzwingen):}
 \begin{lstlisting}[style=consolestyle]
-openssl s_server -accept 4433 -cert cert.pem -key key.pem -tls1
+openssl s_server -accept 4433 \
+  -cert cert.pem -key key.pem -tls1
 \end{lstlisting}
 
 \noindent\textbf{Client-Befehl (Standard-Konfiguration):}
@@ -195,7 +200,7 @@ openssl s_client -connect localhost:4433
 \section{Log-Output Szenario~1}
 \label{app:sz1-log}
 
-\begin{lstlisting}[style=consolestyle]
+\begin{lstlisting}
 CONNECTED(000001B8)
 FC270000:error:0A00042E:SSL routines:ssl3_read_bytes:
 tlsv1 alert protocol version:../openssl-3.6.1/ssl/record/
@@ -209,7 +214,8 @@ no peer certificate available
 
 \noindent\textbf{Server-Befehl:}
 \begin{lstlisting}[style=consolestyle]
-openssl s_server -accept 4433 -cert cert.pem -key key.pem -tls1 \
+openssl s_server -accept 4433 \
+  -cert cert.pem -key key.pem -tls1 \
   -cipher "DEFAULT@SECLEVEL=0"
 \end{lstlisting}
 
@@ -222,7 +228,7 @@ openssl s_client -connect localhost:4433 -tls1 \
 \section{Log-Output Szenario~2}
 \label{app:sz2-log}
 
-\begin{lstlisting}[style=consolestyle]
+\begin{lstlisting}
 CONNECTED(000001BC)
 Can't use SSL_get_servername
 depth=0 C=AU, ST=Some-State

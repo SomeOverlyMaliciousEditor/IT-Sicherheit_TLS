@@ -25,8 +25,7 @@ dafür, dass der private Schlüssel unverschlüsselt bleibt, um einen reibungslo
 Serverstart ohne Passwortabfrage zu ermöglichen~\cite{openssl}:
 
 \begin{lstlisting}[style=consolestyle]
-openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem \
--days 365 -nodes
+openssl req -x509 -newkey rsa:2048 -keyout key.pem  -out cert.pem -days 365 -nodes
 \end{lstlisting}
 
 \subsection*{Verbindungsaufbau}
@@ -38,7 +37,7 @@ zu diesem Port aufzubauen. Siehe Anhang~\ref{app:sz1-befehle}.
 \subsection*{Analyse der Handshake-Schritte}
 
 Der Verbindungsaufbau wird durch den Client gestartet, worauf der Server antwortet und
-versucht, TLS~1.0 aufzuzwingen~\cite{ssldragon}. An dieser Stelle greift der
+ versucht, TLS~1.0 aufzuzwingen~\cite{rfc8446}. An dieser Stelle greift der
 clientseitige Sicherheitsmechanismus: Moderne OpenSSL-Bibliotheken blockieren
 standardmäßig die Kommunikation über Protokolle unterhalb von TLS~1.2~\cite{openssl}.
 Der Handshake bricht unmittelbar ab. Das Terminal des Clients dokumentiert diesen fatalen
@@ -49,7 +48,7 @@ markiertes Paket mit der Kennzeichnung
 \texttt{Alert (Level: Fatal, Description: Protocol Version (70))}.
 Der Fehlercode~70 (\textit{protocol\_version}) belegt, dass der Client die erzwungene
 Abwärtskompatibilität des Servers zum Schutz des Anwenders blockiert
-hat~\cite{alertcode70}.
+ hat~\cite{openssl}.
 
 % ── Szenario 2 ────────────────────────────────────────────────────────────────
 \subsection{Szenario~2: Erfolgreicher Downgrade (Schwächung der Mechanismen)}
@@ -68,7 +67,7 @@ Schutzschilde zu deaktivieren~\cite{openssl}~(Anhang~\ref{app:sz2-befehle}).
 \subsection*{Analyse der Handshake-Schritte}
 
 Durch die Modifikation signalisiert der Client bereits im \textit{Client Hello}, dass er
-im Notfall auch das unsichere TLS~1.0 akzeptiert~\cite{ssldragon}. Der Server antwortet
+ im Notfall auch das unsichere TLS~1.0 akzeptiert~\cite{rfc8446}. Der Server antwortet
 im \textit{Server Hello} mit der Bestätigung der veralteten Version. Da der Client das
 nicht mehr blockiert, wechselt die Verbindung in den Zustand \texttt{CONNECTED}.
 Anhang~\ref{app:sz2-log} zeigt das Protokoll-Log des Terminals des Clients.
