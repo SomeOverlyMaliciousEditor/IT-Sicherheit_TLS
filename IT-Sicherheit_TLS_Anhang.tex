@@ -1,0 +1,60 @@
+\section{OpenSSL-Befehle Szenario~1}
+\label{app:sz1-befehle}
+
+\noindent\textbf{Server-Befehl (TLS~1.0 erzwingen):}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4433 -cert cert.pem -key key.pem -tls1
+\end{lstlisting}
+
+\noindent\textbf{Client-Befehl (Standard-Konfiguration):}
+\begin{lstlisting}[style=consolestyle]
+openssl s_client -connect localhost:4433
+\end{lstlisting}
+
+\section{Log-Output Szenario~1}
+\label{app:sz1-log}
+
+\begin{lstlisting}[style=consolestyle]
+CONNECTED(000001B8)
+FC270000:error:0A00042E:SSL routines:ssl3_read_bytes:
+tlsv1 alert protocol version:../openssl-3.6.1/ssl/record/
+rec_layer_s3.c:918:SSL alert number 70
+---
+no peer certificate available
+\end{lstlisting}
+
+\section{OpenSSL-Befehle Szenario~2}
+\label{app:sz2-befehle}
+
+\noindent\textbf{Server-Befehl:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_server -accept 4433 -cert cert.pem -key key.pem -tls1 \
+  -cipher "DEFAULT@SECLEVEL=0"
+\end{lstlisting}
+
+\noindent\textbf{Client-Befehl:}
+\begin{lstlisting}[style=consolestyle]
+openssl s_client -connect localhost:4433 -tls1 \
+  -cipher "DEFAULT@SECLEVEL=0"
+\end{lstlisting}
+
+\section{Log-Output Szenario~2}
+\label{app:sz2-log}
+
+\begin{lstlisting}[style=consolestyle]
+CONNECTED(000001BC)
+Can't use SSL_get_servername
+depth=0 C=AU, ST=Some-State
+verify error:num=18:self-signed certificate
+verify return:1
+---
+Certificate chain
+ 0 s:C=AU, ST=Some-State
+   i:C=AU, ST=Some-State
+   a:PKEY: RSA, 2048 (bit); sigalg: sha256WithRSAEncryption
+---
+New, TLSv1.0, Cipher is ECDHE-RSA-AES256-SHA
+Protocol : TLSv1
+Server public key is 2048 bit
+Secure Renegotiation IS NOT supported
+\end{lstlisting}

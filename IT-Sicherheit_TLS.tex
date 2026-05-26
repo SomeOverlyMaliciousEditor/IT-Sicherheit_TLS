@@ -30,28 +30,27 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 \lstset{
-    basicstyle=\small\ttfamily,
-    breaklines=true,
-    frame=single,
-    backgroundcolor=\color{gray!20},
-    inputencoding=utf8,
-    extendedchars=true,
-    literate={→}{{$\rightarrow$}}1 {←}{{$\leftarrow$}}1 {⇒}{{$\Rightarrow$}}1 {⇐}{{$\Leftarrow$}}1
+  basicstyle=\small\ttfamily,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{gray!20},
+  literate=
+    {→}{{$\rightarrow$}}1
+    {←}{{$\leftarrow$}}1
+    {⇒}{{$\Rightarrow$}}1
+    {⇐}{{$\Leftarrow$}}1
 }
+
 \lstdefinestyle{consolestyle}{
-  basicstyle=\ttfamily\footnotesize,
+  basicstyle=\color{green!90!black!100}\ttfamily\footnotesize,
   backgroundcolor=\color{black},
-  basicstyle=\color{green!90!black!100},
   frame=single,
   breaklines=true,
   columns=fullflexible,
   keepspaces=true,
-  autogobble=true,
-  }
+  autogobble=true
+}
 
-
-%Tabelle
-\usepackage{pifont}
 \newcommand{\cmark}{\ding{51}}
 \newcommand{\xmark}{\ding{55}}
 \newcommand{\warnmark}{$\circ$}
@@ -97,11 +96,15 @@ POODLE, Cipher Suite, Perfect Forward Secrecy, Zertifikatsvalidierung,
 Public Key Infrastructure, Härtungsmaßnahmen, IT-Sicherheit
 \end{IEEEkeywords}
 
-\input{IT Sicherheit_TLS_1_Einfuehrung.tex}
-\input{IT Sicherheit_TLS_2_Konfiguration.tex}
-\input{IT Sicherheit_TLS_3_Experiment.tex}
-\input{IT Sicherheit_TLS_4_Auswirkungen_Schutzziele.tex}
+\input{IT-Sicherheit_TLS_1_Einfuehrung}
+\input{IT-Sicherheit_TLS_2_Konfiguration}
+\input{IT-Sicherheit_TLS_3_Experiment}
+\input{IT-Sicherheit_TLS_4_Auswirkungen_Schutzziele}
 
-\bibliography{IT Sicherheit_TLS Literatur}
+\bibliographystyle{IEEEtran}
+\bibliography{IT-Sicherheit_TLS_Literatur}
+
+\appendices
+\input{IT-Sicherheit_TLS_Anhang.tex}
 
 \end{document}

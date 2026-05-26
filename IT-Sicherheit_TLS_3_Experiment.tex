@@ -1,0 +1,128 @@
+\section{Experimentelles Setup und Methodik}
+
+\subsection{Simulationsumgebung}
+
+Um die Fehler- und Manipulationsszenarien des Transport Layer Security (TLS) praktisch zu
+analysieren, wurde eine kontrollierte, lokale Loopback-Umgebung (127.0.0.1) auf einem
+Windows-Endgerät implementiert. Als kryptographische Grundlage kam OpenSSL (Version
+3.6.1) sowohl auf Client- als auch auf Server-Seite zum Einsatz~\cite{openssl}.
+Aufgezeichnet wurde der Datenverkehr parallel auf dem Loopback-Interface mittels der
+Netzwerk-Analysesoftware Wireshark. Außerdem wurden aktuelle
+Konfigurationsrichtlinien für sichere Web-Umgebungen herangezogen~\cite{mdndocs}.
+
+\subsection{TLS-Fehlersimulation und Log-Analyse}
+
+Die Aufgabenstellung erfordert die Simulation eines Downgrade- bzw.\
+Handshake-Fehlerfalls sowie die Analyse der Stellen, an denen Schutzmechanismen
+greifen oder geschwächt werden.
+
+% ── Szenario 1 ────────────────────────────────────────────────────────────────
+\subsection{Szenario~1: Nicht-erfolgreicher Downgrade (Handshake-Fehlerfall)}
+
+Im ersten Experiment wurde untersucht, wie ein moderner Client reagiert, wenn ein Server
+ein veraltetes, unsicheres Protokoll erzwingt. Dies simuliert das Verhalten bei einer
+serverseitigen Fehlkonfiguration oder einem Manipulationsversuch im
+Netzpfad~\cite{sentinelone}.
+
+\subsection*{Vorbereitung der Zertifikate}
+
+Zunächst wurde durch die Nutzung von OpenSSL ein selbstsigniertes X.509-Zertifikat mit
+einem 2048-Bit RSA-Schlüsselpaar generiert. Der Parameter \texttt{-nodes} (No-DES) sorgt
+dafür, dass der private Schlüssel unverschlüsselt bleibt, um einen reibungslosen
+Serverstart ohne Passwortabfrage zu ermöglichen~\cite{openssl}:
+
+\begin{lstlisting}[style=consolestyle]
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem \
+-days 365 -nodes
+\end{lstlisting}
+
+\subsection*{Verbindungsaufbau}
+
+Der simulierte Server wurde so gestartet, dass er ausschließlich das veraltete Protokoll
+TLS~1.0 anbietet. Anschließend versuchte der reguläre Client, eine sichere Verbindung
+zu diesem Port aufzubauen. Siehe Anhang~\ref{app:sz1-befehle}.
+
+\subsection*{Analyse der Handshake-Schritte}
+
+Der Verbindungsaufbau wird durch den Client gestartet, worauf der Server antwortet und
+versucht, TLS~1.0 aufzuzwingen~\cite{ssldragon}. An dieser Stelle greift der
+clientseitige Sicherheitsmechanismus: Moderne OpenSSL-Bibliotheken blockieren
+standardmäßig die Kommunikation über Protokolle unterhalb von TLS~1.2~\cite{openssl}.
+Der Handshake bricht unmittelbar ab. Das Terminal des Clients dokumentiert diesen fatalen
+Protokollkonflikt wie in Anhang~\ref{app:sz1-log} aufgezeigt.
+
+In der parallelen Wireshark-Aufzeichnung zeigt sich dieser Abbruch durch ein rot
+markiertes Paket mit der Kennzeichnung
+\texttt{Alert (Level: Fatal, Description: Protocol Version (70))}.
+Der Fehlercode~70 (\textit{protocol\_version}) belegt, dass der Client die erzwungene
+Abwärtskompatibilität des Servers zum Schutz des Anwenders blockiert
+hat~\cite{alertcode70}.
+
+% ── Szenario 2 ────────────────────────────────────────────────────────────────
+\subsection{Szenario~2: Erfolgreicher Downgrade (Schwächung der Mechanismen)}
+
+Das zweite Experiment simuliert den Fall, in dem die clientseitigen Schutzmechanismen
+bewusst deaktiviert werden -- beispielsweise, um die Kommunikation mit ungenügend
+gehärteten Altsystemen (Legacy-Systemen) im Firmennetzwerk zu
+erzwingen~\cite{sentinelone}.
+
+\subsection*{Verbindungsaufbau unter reduzierten Sicherheitsbarrieren}
+
+Nun werden der Server und der Client durch das explizite Herabsetzen des
+Sicherheitslevels auf die Stufe~Null (\texttt{@SECLEVEL=0}) jeweils gezwungen, ihre
+Schutzschilde zu deaktivieren~\cite{openssl}~(Anhang~\ref{app:sz2-befehle}).
+
+\subsection*{Analyse der Handshake-Schritte}
+
+Durch die Modifikation signalisiert der Client bereits im \textit{Client Hello}, dass er
+im Notfall auch das unsichere TLS~1.0 akzeptiert~\cite{ssldragon}. Der Server antwortet
+im \textit{Server Hello} mit der Bestätigung der veralteten Version. Da der Client das
+nicht mehr blockiert, wechselt die Verbindung in den Zustand \texttt{CONNECTED}.
+Anhang~\ref{app:sz2-log} zeigt das Protokoll-Log des Terminals des Clients.
+
+\subsection*{Bewertung der Schwachstelle}
+
+An dieser Stelle versagen die Sicherheitsmechanismen der Transportschicht im realen
+Betrieb~\cite{sentinelone}. Obwohl für den Anwender eine etablierte Verschlüsselung
+signalisiert wird (\texttt{CONNECTED}), ist die Vertraulichkeit und Integrität der Daten
+nach heutigem Standard stark gefährdet. Durch die Schwachstellen von TLS~1.0 können
+Angreifer im Netzpfad (Man-in-the-Middle) die Sitzung mit modernen Rechenkapazitäten
+passiv abhören oder manipulieren~\cite{sentinelone,mdndocs}.
+
+% ── Vergleichstabelle ─────────────────────────────────────────────────────────
+\subsection{Analytische Gegenüberstellung der Simulationsergebnisse}
+
+Zur übersichtlichen Strukturierung der Ergebnisse sind die Auswirkungen der beiden
+Konfigurationen in Tabelle~\ref{tab:vergleich} zusammenfassend gegenübergestellt.
+
+\begin{table}[ht]
+\caption{Vergleichsmatrix der simulierten TLS-Fehlerfälle}
+\label{tab:vergleich}
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lll}
+\toprule
+\textbf{Kriterium}
+  & \textbf{Szenario~1: Mismatch}
+  & \textbf{Szenario~2: Downgrade} \\
+\midrule
+Server-Vorgabe
+  & Erzwingung TLS~1.0
+  & Erzwingung TLS~1.0 \\
+Client-Konfiguration
+  & Standard (Level $\geq$ 1)
+  & Deaktiviert (Level~0) \\
+Handshake-Verlauf
+  & Abbruch (Fatal Alert)
+  & Erfolgreich (\texttt{CONNECTED}) \\
+Log-Indikator
+  & \texttt{SSL alert number 70}
+  & \texttt{Protocol: TLSv1} \\
+Sicherheitszustand
+  & Sicher (Leitung blockiert)
+  & Insecure (vulnerabel) \\
+\bottomrule
+\end{tabular}}
+\end{table}
