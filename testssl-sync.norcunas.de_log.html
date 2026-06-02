@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title></title>
+<style type="text/css">
+.ansi2html-content { display: inline; white-space: pre-wrap; word-wrap: break-word; }
+.body_foreground { color: #AAAAAA; }
+.body_background { background-color: #000000; }
+.inv_foreground { color: #000000; }
+.inv_background { background-color: #AAAAAA; }
+.inv_foreground { color: #000000; }
+.inv_background { background-color: #AAAAAA; }
+.ansi1 { font-weight: bold; }
+.ansi3 { font-style: italic; }
+.ansi4 { text-decoration: underline; }
+.ansi32 { color: #00aa00; }
+.ansi33 { color: #aa5500; }
+.ansi35 { color: #E850A8; }
+.ansi37 { color: #F5F1DE; }
+</style>
+</head>
+<body class="body_foreground body_background" style="font-size: normal;" >
+<pre class="ansi2html-content">
+<span class="ansi1">
+#####################################################################</span>
+  <span class="ansi1">testssl.sh</span> version <span class="ansi1">3.2.3</span> from <span class="ansi1">https://testssl.sh/</span>
+  <span class="ansi1">(</span><span class="ansi37">7f63e73e 2026-05-30 17:47:56</span><span class="ansi1">)</span>
+<span class="ansi1">
+  This program is free software. Distribution and modification under
+  GPLv2 permitted. USAGE w/o ANY WARRANTY. USE IT AT YOUR OWN RISK!</span>
+
+  Please file bugs @ <span class="ansi1">https://testssl.sh/bugs/</span>
+<span class="ansi1">#####################################################################</span>
+
+  Using <span class="ansi3">OpenSSL 1.0.2-bad (Mar 28 2025)</span>  [~183 ciphers]
+  on bazzite:./bin/openssl.Linux.x86_64
+
+<span class="inv_background inv_foreground"> Start 2026-06-02 04:01:04        --&gt;&gt; [2a00:6020:ad46:6d00:b62e:99ff:fe3e:64c0]:443 (sync.norcunas.de) &lt;&lt;--</span>
+
+ rDNS (2a00:6020:ad46:6d00:b62e:99ff:fe3e:64c0): truenas.fritz.box.
+ Service detected:                               HTTP
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Testing protocols </span><span class="ansi4">via sockets except NPN+ALPN </span>
+
+<span class="ansi1"> SSLv2      </span><span class="ansi1 ansi32">not offered (OK)</span>
+<span class="ansi1"> SSLv3      </span><span class="ansi1 ansi32">not offered (OK)</span>
+<span class="ansi1"> TLS 1      </span>not offered
+<span class="ansi1"> TLS 1.1    </span>not offered
+<span class="ansi1"> TLS 1.2    </span><span class="ansi1 ansi32">offered (OK)</span>
+<span class="ansi1"> TLS 1.3    </span><span class="ansi1 ansi32">offered (OK)</span>: final
+<span class="ansi1"> NPN/SPDY   </span>not offered
+<span class="ansi1"> ALPN/HTTP2 </span><span class="ansi32">h2</span>, http/1.1 (offered)
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Testing cipher categories </span>
+
+<span class="ansi1"> NULL ciphers (no encryption)                      </span><span class="ansi1 ansi32">not offered (OK)</span>
+<span class="ansi1"> Anonymous NULL Ciphers (no authentication)        </span><span class="ansi1 ansi32">not offered (OK)</span>
+<span class="ansi1"> Export ciphers (w/o ADH+NULL)                     </span><span class="ansi1 ansi32">not offered (OK)</span>
+<span class="ansi1"> LOW: 64 Bit + DES, RC[2,4], MD5 (w/o export)      </span><span class="ansi32">not offered (OK)</span>
+<span class="ansi1"> Triple DES Ciphers / IDEA                         </span>not offered
+<span class="ansi1"> Obsoleted CBC ciphers (AES, ARIA etc.)            </span>not offered
+<span class="ansi1"> Strong encryption (AEAD ciphers) with no FS       </span>not offered
+<span class="ansi1"> Forward Secrecy strong encryption (AEAD ciphers)  </span><span class="ansi1 ansi32">offered (OK)</span>
+
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Testing server's cipher preferences </span>
+
+Hexcode  Cipher Suite Name (OpenSSL)       KeyExch.   Encryption  Bits     Cipher Suite Name (IANA/RFC)
+-----------------------------------------------------------------------------------------------------------------------------
+<span class="ansi4">SSLv2</span>
+ - 
+<span class="ansi4">SSLv3</span>
+ - 
+<span class="ansi4">TLSv1</span>
+ - 
+<span class="ansi4">TLSv1.1</span>
+ - 
+<span class="ansi4">TLSv1.2</span> (no server order, thus listed by strength)
+ xc02c   ECDHE-ECDSA-AES256-GCM-SHA384     ECDH<span class="ansi32"> 521</span>   AESGCM      256      TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384            
+ xcca9   ECDHE-ECDSA-CHACHA20-POLY1305     ECDH<span class="ansi32"> 521</span>   ChaCha20    256      TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256      
+ xc02b   ECDHE-ECDSA-AES128-GCM-SHA256     ECDH<span class="ansi32"> 521</span>   AESGCM      128      TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256            
+<span class="ansi4">TLSv1.3</span> (no server order, thus listed by strength)
+ x1302   TLS_AES_256_GCM_SHA384            ECDH<span class="ansi32"> 253</span>   AESGCM      256      TLS_AES_256_GCM_SHA384                             
+ x1303   TLS_CHACHA20_POLY1305_SHA256      ECDH<span class="ansi32"> 253</span>   ChaCha20    256      TLS_CHACHA20_POLY1305_SHA256                       
+ x1301   TLS_AES_128_GCM_SHA256            ECDH<span class="ansi32"> 253</span>   AESGCM      128      TLS_AES_128_GCM_SHA256                             
+
+<span class="ansi1"> Has server cipher order?     </span>no
+ (limited sense as client will pick)
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Testing robust forward secrecy (FS)</span><span class="ansi4"> -- omitting Null Authentication/Encryption, 3DES, RC4 </span>
+
+<span class="ansi32"> FS is offered (OK) </span>          TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256
+                              ECDHE-ECDSA-AES256-GCM-SHA384
+                              ECDHE-ECDSA-CHACHA20-POLY1305 TLS_AES_128_GCM_SHA256
+                              ECDHE-ECDSA-AES128-GCM-SHA256 
+<span class="ansi1"> KEMs offered                 </span><span class="ansi1 ansi33">None</span>
+<span class="ansi1"> Elliptic curves offered:     </span><span class="ansi32">prime256v1</span> <span class="ansi32">secp384r1</span> <span class="ansi32">secp521r1</span> <span class="ansi32">X25519</span> <span class="ansi32">X448</span> 
+<span class="ansi1"> Finite field group:          </span><span class="ansi32">ffdhe2048 ffdhe3072 ffdhe4096 ffdhe6144 ffdhe8192</span>
+<span class="ansi1"> TLS 1.2 sig_algs offered:    </span>ECDSA+SHA512 ECDSA+SHA384 ECDSA+SHA256 ECDSA+SHA224 
+<span class="ansi1"> TLS 1.3 sig_algs offered:    </span>ECDSA+SHA384 
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Testing server defaults (Server Hello) </span>
+
+<span class="ansi1"> TLS extensions (standard)    </span>"server name/#0" "max fragment length/#1"
+                              "supported_groups/#10" "EC point formats/#11"
+                              "application layer protocol negotiation/#16"
+                              "extended master secret/#23" "session ticket/#35"
+                              "supported versions/#43" "key share/#51"
+                              "renegotiation info/#65281"
+<span class="ansi1"> Session Ticket RFC 5077 hint </span>300 seconds, session tickets keys seems to be rotated &lt; daily
+<span class="ansi1"> SSL Session ID support       </span>yes
+<span class="ansi1"> Session Resumption           </span>Tickets: yes, ID: no
+<span class="ansi1"> TLS clock skew</span>               Random values, no fingerprinting possible 
+<span class="ansi1"> Certificate Compression      </span>none
+<span class="ansi1"> Client Authentication        </span>none
+<span class="ansi1"> Signature Algorithm          </span><span class="ansi32">ECDSA with SHA384</span>
+<span class="ansi1"> Server key size              </span>EC <span class="ansi32">384</span> bits (curve P-384)
+<span class="ansi1"> Server key usage             </span>Digital Signature
+<span class="ansi1"> Server extended key usage    </span>TLS Web Server Authentication
+<span class="ansi1"> Serial                       </span>061D199911664ED7B5A33D889382F37B92C0 (OK: length 18)
+<span class="ansi1"> Fingerprints                 </span>SHA1 CFA6D09AEE6214163D53DE863BCB9192719F8753
+                              SHA256 60203C62541ACB8A7227355A9EB9FA62DB9205B4D2D7E3AC88A7F161B863CA9B
+<span class="ansi1"> Common Name (CN)             </span><span class="ansi3">sync.norcunas.de </span> (request w/o SNI didn't succeed, usual for EC certificates)
+<span class="ansi1"> subjectAltName (SAN)         </span><span class="ansi3">sync.norcunas.de </span>
+<span class="ansi1"> Trust (hostname)             </span><span class="ansi32">Ok via SAN and CN</span> (SNI mandatory)
+<span class="ansi1"> Chain of trust</span>               <span class="ansi32">Ok   </span><span class="ansi35"></span>
+<span class="ansi1"> EV cert</span> (experimental)       no 
+<span class="ansi1"> Certificate Validity (UTC)   </span><span class="ansi32">68 &gt;= 30 days</span> (2026-05-11 22:41 --&gt; 2026-08-09 22:41)
+<span class="ansi1"> ETS/"eTLS"</span>, visibility info  not present
+<span class="ansi1"> Certificate Revocation List  </span>http://e7.c.lencr.org/65.crl
+<span class="ansi1"> OCSP URI                     </span>--
+<span class="ansi1"> OCSP stapling                </span>not offered
+<span class="ansi1"> OCSP must staple extension   </span>--
+<span class="ansi1"> DNS CAA RR</span> (experimental)    <span class="ansi1 ansi33">not offered</span>
+<span class="ansi1"> Certificate Transparency     </span><span class="ansi32">yes</span> (certificate extension)
+<span class="ansi1"> Certificates provided</span>        2
+<span class="ansi1"> Issuer                       </span><span class="ansi3">E7</span> (<span class="ansi3">Let's Encrypt</span> from <span class="ansi3">US</span>)
+<span class="ansi1"> Intermediate cert validity   </span>#1: <span class="ansi32">ok &gt; 40 days</span> (2027-03-12 23:59). <span class="ansi3">E7</span> &lt;-- <span class="ansi3">ISRG Root X1</span>
+<span class="ansi1"> Intermediate Bad OCSP</span> (exp.) <span class="ansi32">Ok</span>
+
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Testing HTTP header response @ "/" </span>
+
+<span class="ansi1"> HTTP Status Code           </span>  302 Found, redirecting to "https://sync.norcunas.de/login"
+<span class="ansi1"> HTTP clock skew              </span>0 sec from localtime
+<span class="ansi1"> Strict Transport Security    </span><span class="ansi32">730 days</span>=63072000 s<span class="ansi32">, includeSubDomains</span><span class="ansi32">, preload</span>
+<span class="ansi1"> Public Key Pinning           </span>--
+<span class="ansi1"> Server banner                </span>openresty
+<span class="ansi1"> Application banner           </span><span class="ansi33"></span><span class="ansi1 ansi33">X-Powered-By</span>: PHP/<span class="ansi33">8</span>.<span class="ansi33">4</span>.<span class="ansi33">2</span><span class="ansi33">1</span>
+<span class="ansi1"> Cookie(s)                    </span>6 issued: <span class="ansi32">6/6</span> secure, <span class="ansi32">6/6</span> HttpOnly -- maybe better try target URL of 30x
+<span class="ansi1"> Security headers             </span><span class="ansi32">X-Frame-Options</span>: SAMEORIGIN
+                              <span class="ansi32">X-Content-Type-Options</span>: nosniff
+                              <span class="ansi32">Content-Security-Policy</span>: default-src 'self'; script-src
+                                'self'
+                                'nonce-vTLcvS5FqTPYn4iS4Bjn5QGkL3J4P0GkIW2CQHNPjjU=';
+                                style-src 'self' 'unsafe-inline'; frame-src *;
+                                img-src * data: blob:; font-src 'self' data:;
+                                media-src *; connect-src *; object-src 'none';
+                                base-uri 'self';
+                              X-Served-By: sync.norcunas.de
+                              Referrer-Policy: no-referrer
+<span class="ansi1"> Reverse Proxy banner         </span>--
+
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Testing vulnerabilities </span>
+
+<span class="ansi1"> Heartbleed</span> (CVE-2014-0160)                <span class="ansi1 ansi32">not vulnerable (OK)</span>, no heartbeat extension
+<span class="ansi1"> CCS</span> (CVE-2014-0224)                       <span class="ansi1 ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> Ticketbleed</span> (CVE-2016-9244), experiment.  <span class="ansi1 ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> ROBOT                                     </span><span class="ansi1 ansi32">Server does not support any cipher suites that use RSA key transport</span>
+<span class="ansi1"> Secure Renegotiation (RFC 5746)           </span><span class="ansi1 ansi32">supported (OK)</span>
+<span class="ansi1"> Secure Client-Initiated Renegotiation     </span><span class="ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> CRIME, TLS </span>(CVE-2012-4929)                <span class="ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> BREACH</span> (CVE-2013-3587)                    <span class="ansi32">no gzip/deflate/compress/br HTTP compression (OK) </span> - only supplied "/" tested
+<span class="ansi1"> POODLE, SSL</span> (CVE-2014-3566)               <span class="ansi1 ansi32">not vulnerable (OK)</span>, no SSLv3 support
+<span class="ansi1"> TLS_FALLBACK_SCSV</span> (RFC 7507)              <span class="ansi32">No fallback possible (OK)</span>, no protocol below TLS 1.2 offered
+<span class="ansi1"> SWEET32</span> (CVE-2016-2183, CVE-2016-6329)    <span class="ansi1 ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> FREAK</span> (CVE-2015-0204)                     <span class="ansi1 ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> DROWN</span> (CVE-2016-0800, CVE-2016-0703)      <span class="ansi1 ansi32">not vulnerable on this host and port (OK)</span>
+                                           no RSA certificate, thus certificate can't be used with SSLv2 elsewhere
+<span class="ansi1"> LOGJAM</span> (CVE-2015-4000), experimental      <span class="ansi32">not vulnerable (OK):</span> no DH EXPORT ciphers, no DH key detected with &lt;= TLS 1.2
+<span class="ansi1"> BEAST</span> (CVE-2011-3389)                     <span class="ansi32">not vulnerable (OK)</span>, no SSL3 or TLS1
+<span class="ansi1"> LUCKY13</span> (CVE-2013-0169), experimental     <span class="ansi1 ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> Winshock</span> (CVE-2014-6321), experimental    <span class="ansi1 ansi32">not vulnerable (OK)</span>
+<span class="ansi1"> RC4</span> (CVE-2013-2566, CVE-2015-2808)        <span class="ansi32">no RC4 ciphers detected (OK)</span>
+
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Running client simulations </span><span class="ansi1"></span><span class="ansi1 ansi4">(HTTP) </span><span class="ansi1"></span><span class="ansi1 ansi4">via sockets </span>
+
+ Browser                      Protocol  Cipher Suite Name (OpenSSL)       Forward Secrecy
+------------------------------------------------------------------------------------------------
+ Android 7.0 (native)         No connection
+ Android 8.1 (native)         TLSv1.2   ECDHE-ECDSA-AES128-GCM-SHA256     <span class="ansi32">253 bit ECDH (X25519)</span>
+ Android 9.0 (native)         TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Android 10.0 (native)        TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Android 11/12 (native)       TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Android 13/14 (native)       TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Android 15/16 (native)       TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Chromium 137 (Win 11)        TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Firefox 100 (Win 10)         TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Firefox 137 (Win 11)         TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ IE 8 Win 7                   No connection
+ IE 11 Win 7                  TLSv1.2   ECDHE-ECDSA-AES256-GCM-SHA384     <span class="ansi32">256 bit ECDH (P-256)</span>
+ IE 11 Win 8.1                TLSv1.2   ECDHE-ECDSA-AES256-GCM-SHA384     <span class="ansi32">256 bit ECDH (P-256)</span>
+ IE 11 Win Phone 8.1          TLSv1.2   ECDHE-ECDSA-AES128-GCM-SHA256     <span class="ansi32">256 bit ECDH (P-256)</span>
+ IE 11 Win 10                 TLSv1.2   ECDHE-ECDSA-AES256-GCM-SHA384     <span class="ansi32">256 bit ECDH (P-256)</span>
+ Edge 15 Win 10               TLSv1.2   ECDHE-ECDSA-AES256-GCM-SHA384     <span class="ansi32">253 bit ECDH (X25519)</span>
+ Edge 101/Chrome 101 Win 10 21H2TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Edge 133 Win 11 23H2         TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Safari 18.4 (macOS 15.4/iOS 18.4)TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Safari 26.4 (macOS/iOS/iPadOS 26.4)TLSv1.3   TLS_AES_256_GCM_SHA384            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Java 7u25                    No connection
+ Java 8u442 (OpenJDK)         TLSv1.3   TLS_AES_256_GCM_SHA384            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Java 11.0.2 (OpenJDK)        TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">256 bit ECDH (P-256)</span>
+ Java 17.0.3/21.0.6 (OpenJDK) TLSv1.3   TLS_AES_256_GCM_SHA384            <span class="ansi32">253 bit ECDH (X25519)</span>
+ go 1.17.8                    TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+ LibreSSL 3.3.6 (macOS)       TLSv1.3   TLS_CHACHA20_POLY1305_SHA256      <span class="ansi32">253 bit ECDH (X25519)</span>
+ OpenSSL 1.0.2e               TLSv1.2   ECDHE-ECDSA-AES256-GCM-SHA384     <span class="ansi32">256 bit ECDH (P-256)</span>
+ OpenSSL 1.1.1d (Debian)      TLSv1.3   TLS_AES_256_GCM_SHA384            <span class="ansi32">253 bit ECDH (X25519)</span>
+ OpenSSL 3.0.15 (Debian)      TLSv1.3   TLS_AES_256_GCM_SHA384            <span class="ansi32">253 bit ECDH (X25519)</span>
+ OpenSSL 3.5.0 (git)          TLSv1.3   TLS_AES_256_GCM_SHA384            <span class="ansi32">253 bit ECDH (X25519)</span>
+ OpenSSL 4.0.0 (git)          TLSv1.3   TLS_AES_256_GCM_SHA384            <span class="ansi32">253 bit ECDH (X25519)</span>
+ Apple Mail (16.0)            TLSv1.2   ECDHE-ECDSA-AES256-GCM-SHA384     <span class="ansi32">256 bit ECDH (P-256)</span>
+ Thunderbird (91.9)           TLSv1.3   TLS_AES_128_GCM_SHA256            <span class="ansi32">253 bit ECDH (X25519)</span>
+
+
+<span class="ansi1"></span><span class="ansi1 ansi4"> Rating (experimental) </span>
+
+<span class="ansi1"> Rating specs</span> (not complete)  SSL Labs's 'SSL Server Rating Guide' (version 2009r from 2025-05-16)
+<span class="ansi1"> Specification documentation  </span>https://github.com/ssllabs/research/wiki/SSL-Server-Rating-Guide
+<span class="ansi1"> Protocol Support </span>(weighted)  100 (30)
+<span class="ansi1"> Key Exchange </span>    (weighted)  100 (30)
+<span class="ansi1"> Cipher Strength </span> (weighted)  90 (36)
+<span class="ansi1"> Final Score                  </span>96
+<span class="ansi1"> Overall Grade                </span><span class="ansi1 ansi32">A+</span>
+
+<span class="inv_background inv_foreground"> Done 2026-06-02 04:01:53 [  51s] --&gt;&gt; [2a00:6020:ad46:6d00:b62e:99ff:fe3e:64c0]:443 (sync.norcunas.de) &lt;&lt;--</span>
+
+
+
+</pre>
+</body>
+
+</html>
